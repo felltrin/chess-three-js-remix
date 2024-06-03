@@ -1,5 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { Chess } from 'chess.js';
 
 
 window.addEventListener('DOMContentLoaded', main);
@@ -8,9 +10,34 @@ let renderer: THREE.WebGLRenderer,
     scene: THREE.Scene,
     camera: THREE.PerspectiveCamera,
     board: THREE.Group,
-    controls: OrbitControls;
+    controls: OrbitControls,
+    chess: Chess;
+
+const FILES = {
+    0: 'a',
+    1: 'b',
+    2: 'c',
+    3: 'd',
+    4: 'e',
+    5: 'f',
+    6: 'g',
+    7: 'h',
+}
+
+const RANKS = {
+    0: '1',
+    1: '2',
+    2: '3',
+    3: '4',
+    4: '5',
+    5: '6',
+    6: '7',
+    7: '8',
+}
 
 function main(): void {
+    chess = new Chess();
+
     const canvas = document.querySelector('#c');
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
@@ -28,22 +55,18 @@ function main(): void {
     const darkSquare = new THREE.MeshBasicMaterial( { color: 0x6A4236 } );
 
     board = new THREE.Group();
-    let cubeNumber = 1;
+    let squarePosition: string = "";
     for ( let x = 0; x < 8; x++ ) {
         for ( let z = 0; z < 8; z++ ) {
             let cube: THREE.Mesh;
             if ( z % 2 !== 0 ) {
                 cube = new THREE.Mesh( square, x % 2 === 0 ? lightSquare : darkSquare );
-                if( x % 2 === 0 ) {
-                    cube.userData.cubeNumber = cubeNumber;
-                    cubeNumber++;
-                }
+                squarePosition = FILES[z] + RANKS[x];
+                cube.userData.square = squarePosition;
             } else {
                 cube = new THREE.Mesh( square, x % 2 === 0 ? darkSquare : lightSquare );
-                if ( x % 2 === 0 ) {
-                    cube.userData.cubeNumber = cubeNumber;
-                    cubeNumber++;
-                }
+                squarePosition = FILES[z] + RANKS[x];
+                cube.userData.square = squarePosition;
             }
 
             cube.position.set( x, 0, z );
@@ -52,6 +75,21 @@ function main(): void {
     }
     scene.add( board );
 
+    const loader = new GLTFLoader();
+    loader.load("pieces/GLB/chess.glb", function( gltf ) {
+        const pawnMesh = gltf.scene.children.find((child) => child.name === "pawn");
+        // const pawnMesh = gltf.scene;
+        pawnMesh.scale.set( pawnMesh.scale.x * 0.2, pawnMesh.scale.y * 0.2, pawnMesh.scale.z * 0.2 );
+        pawnMesh.position.z = 7;
+        pawnMesh.position.x = 1;
+        // scene.add( pawnMesh.children.find((child) => child.name === "pawn") );
+        addPieces(pawnMesh);
+    });
+
+    const light = new THREE.PointLight(0xffffff, 20, 200);
+    light.position.set( 4.5, 10, 4.5 );
+    scene.add( light );
+
     controls = new OrbitControls( camera, canvas );
     controls.target.set( 3.5, 0, 3.5 );
     controls.enablePan = false;
@@ -59,6 +97,61 @@ function main(): void {
     controls.enableDamping = true;
 
     requestAnimationFrame(animate);
+}
+
+function positionForSquare( square ) {
+    const found = board.children.find((child) => child.userData.square === square);
+    if ( found ) {
+        return found.position;
+    }
+    return null;
+}
+
+function addPieces( pieceMesh: THREE.Mesh ) {
+    let boardCubes = board.children;
+    for (let i = 0; i < 64; i++ ) {
+        let currentSquare = boardCubes[i].userData.square;
+        let pieceOn = chess.get( currentSquare );
+        const piece = pieceMesh.clone(true);
+        const squarePosition = positionForSquare( currentSquare);
+
+        switch ( pieceOn.type ) {
+            case 'p':
+                if ( pieceOn.color === 'b' ) {
+                    piece.material = new THREE.MeshStandardMaterial( { color: 0x222222 } );
+                    piece.userData.color = 'b';
+                    piece.position.set( squarePosition.x, piece.position.y, squarePosition.z );
+                    scene.add(piece);
+                } else if ( pieceOn.color === 'w' ) {
+                    piece.material = new THREE.MeshStandardMaterial( { color: 0xeeeeee } );
+                    piece.userData.color = 'w';
+                    piece.position.set( squarePosition.x, piece.position.y, squarePosition.z );
+                    scene.add(piece);
+                }
+                piece.userData.currentSquare = currentSquare;
+                break;
+            default:
+                console.log("square has no piece starting on it");
+        }
+
+        // if ( pieceOn.type === 'p' ) {
+        //     if ( pieceOn.color === 'b' ) {
+        //         piece.material = new THREE.MeshStandardMaterial( { color: 0x222222 } );
+        // //         FIXME: Delete later if not needed
+        //         piece.userData.color = 'b';
+        //         piece.userData.currentSquare = pieceMesh.userData.square;
+        //         piece.position.set( squarePosition.x, piece.position.y, squarePosition.z );
+        //         scene.add(piece);
+        //     } else if ( pieceOn.color === 'w' ) {
+        //         piece.material = new THREE.MeshStandardMaterial( { color: 0xEEEEEE } );
+        //         piece.userData.color = 'w';
+        //         piece.userData.currentSquare = pieceMesh.userData.square;
+        //         piece.position.set( squarePosition.x, piece.position.y, squarePosition.z );
+        //         scene.add(piece);
+        //     }
+        //     piece.userData.currentSquare = pieceMesh.userData.square;
+        // }
+    }
 }
 
 
