@@ -76,7 +76,7 @@ function main(): void {
     scene.add( board );
 
     const loader = new GLTFLoader();
-    loader.load("pieces/GLB/chess.glb", function( gltf ) {
+    loader.load("pieces/chess.glb", function( gltf ) {
         const pawnMesh = gltf.scene.children.find((child) => child.name === "pawn");
         // const pawnMesh = gltf.scene;
         pawnMesh.scale.set( pawnMesh.scale.x * 0.2, pawnMesh.scale.y * 0.2, pawnMesh.scale.z * 0.2 );
@@ -133,24 +133,6 @@ function addPieces( pieceMesh: THREE.Mesh ) {
             default:
                 console.log("square has no piece starting on it");
         }
-
-        // if ( pieceOn.type === 'p' ) {
-        //     if ( pieceOn.color === 'b' ) {
-        //         piece.material = new THREE.MeshStandardMaterial( { color: 0x222222 } );
-        // //         FIXME: Delete later if not needed
-        //         piece.userData.color = 'b';
-        //         piece.userData.currentSquare = pieceMesh.userData.square;
-        //         piece.position.set( squarePosition.x, piece.position.y, squarePosition.z );
-        //         scene.add(piece);
-        //     } else if ( pieceOn.color === 'w' ) {
-        //         piece.material = new THREE.MeshStandardMaterial( { color: 0xEEEEEE } );
-        //         piece.userData.color = 'w';
-        //         piece.userData.currentSquare = pieceMesh.userData.square;
-        //         piece.position.set( squarePosition.x, piece.position.y, squarePosition.z );
-        //         scene.add(piece);
-        //     }
-        //     piece.userData.currentSquare = pieceMesh.userData.square;
-        // }
     }
 }
 
