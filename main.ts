@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { Chess } from 'chess.js';
+import { GLTFLoader, GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { Chess, Square, Piece } from 'chess.js';
 
 
 window.addEventListener('DOMContentLoaded', main);
@@ -13,7 +13,7 @@ let renderer: THREE.WebGLRenderer,
     controls: OrbitControls,
     chess: Chess;
 
-const FILES = {
+const FILES: Record<number, string> = {
     0: 'a',
     1: 'b',
     2: 'c',
@@ -24,7 +24,7 @@ const FILES = {
     7: 'h',
 }
 
-const RANKS = {
+const RANKS: Record<number, string> = {
     0: '1',
     1: '2',
     2: '3',
@@ -38,7 +38,7 @@ const RANKS = {
 function main(): void {
     chess = new Chess();
 
-    const canvas = document.querySelector('#c');
+    const canvas: Element = document.querySelector('#c');
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
     camera.position.set(0, 1, 3);
@@ -50,9 +50,9 @@ function main(): void {
     renderer.setSize( window.innerWidth, window.innerHeight );
     document.body.appendChild( renderer.domElement );
 
-    const square = new THREE.BoxGeometry( 1, 0.1, 1 );
-    const lightSquare = new THREE.MeshBasicMaterial( { color: 0xE0C4A8 } );
-    const darkSquare = new THREE.MeshBasicMaterial( { color: 0x6A4236 } );
+    const square: THREE.BoxGeometry = new THREE.BoxGeometry( 1, 0.1, 1 );
+    const lightSquare: THREE.MeshBasicMaterial = new THREE.MeshBasicMaterial( { color: 0xE0C4A8 } );
+    const darkSquare: THREE.MeshBasicMaterial = new THREE.MeshBasicMaterial( { color: 0x6A4236 } );
 
     board = new THREE.Group();
     let squarePosition: string = "";
@@ -75,9 +75,9 @@ function main(): void {
     }
     scene.add( board );
 
-    const loader = new GLTFLoader();
-    loader.load("pieces/chess.glb", function( gltf ) {
-        const pawnMesh = gltf.scene.children.find((child) => child.name === "pawn");
+    const loader: GLTFLoader = new GLTFLoader();
+    loader.load("pieces/chess.glb", function( gltf: GLTF ): void {
+        const pawnMesh: THREE.Mesh = gltf.scene.children.find((child) => child.name === "pawn");
         // const pawnMesh = gltf.scene;
         pawnMesh.scale.set( pawnMesh.scale.x * 0.2, pawnMesh.scale.y * 0.2, pawnMesh.scale.z * 0.2 );
         pawnMesh.position.z = 7;
@@ -86,7 +86,7 @@ function main(): void {
         addPieces(pawnMesh);
     });
 
-    const light = new THREE.PointLight(0xffffff, 20, 200);
+    const light: THREE.PointLight = new THREE.PointLight(0xffffff, 200, 200);
     light.position.set( 4.5, 10, 4.5 );
     scene.add( light );
 
@@ -99,8 +99,8 @@ function main(): void {
     requestAnimationFrame(animate);
 }
 
-function positionForSquare( square ) {
-    const found = board.children.find((child) => child.userData.square === square);
+function positionForSquare( square: string ) {
+    const found: THREE.Mesh = board.children.find((child) => child.userData.square === square);
     if ( found ) {
         return found.position;
     }
@@ -108,12 +108,12 @@ function positionForSquare( square ) {
 }
 
 function addPieces( pieceMesh: THREE.Mesh ) {
-    let boardCubes = board.children;
+    let boardCubes: THREE.Mesh[] = board.children;
     for (let i = 0; i < 64; i++ ) {
-        let currentSquare = boardCubes[i].userData.square;
-        let pieceOn = chess.get( currentSquare );
-        const piece = pieceMesh.clone(true);
-        const squarePosition = positionForSquare( currentSquare);
+        let currentSquare: Square = boardCubes[i].userData.square;
+        let pieceOn: Piece = chess.get( currentSquare );
+        const piece: THREE.Mesh = pieceMesh.clone(true);
+        const squarePosition: THREE.Mesh = positionForSquare( currentSquare );
 
         switch ( pieceOn.type ) {
             case 'p':
@@ -140,7 +140,7 @@ function addPieces( pieceMesh: THREE.Mesh ) {
 function animate(): void {
     controls.update();
     if (resizeRendererToDisplaySize(renderer)) {
-        const canvas = renderer.domElement;
+        const canvas: Element = renderer.domElement;
         camera.aspect = canvas.clientWidth / canvas.clientHeight;
         camera.updateProjectionMatrix();
     }
@@ -151,10 +151,10 @@ function animate(): void {
 
 function resizeRendererToDisplaySize( renderer: THREE.WebGLRenderer ): boolean {
     const canvas = renderer.domElement;
-    const pixelRatio = window.devicePixelRatio;
-    const width  = Math.floor( canvas.clientWidth  * pixelRatio );
-    const height = Math.floor( canvas.clientHeight * pixelRatio );
-    const needResize = canvas.width !== width || canvas.height !== height;
+    const pixelRatio: number = window.devicePixelRatio;
+    const width: number  = Math.floor( canvas.clientWidth  * pixelRatio );
+    const height: number = Math.floor( canvas.clientHeight * pixelRatio );
+    const needResize: boolean = canvas.width !== width || canvas.height !== height;
     if (needResize) {
         renderer.setSize(width, height, false);
     }
