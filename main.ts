@@ -11,7 +11,10 @@ let renderer: THREE.WebGLRenderer,
     camera: THREE.PerspectiveCamera,
     board: THREE.Group,
     controls: OrbitControls,
-    chess: Chess;
+    chess: Chess,
+    pointer: THREE.Vector2,
+    raycaster: THREE.Raycaster,
+    selectedPiece: Square | null = null;
 
 const FILES: Record<number, string> = {
     0: 'a',
@@ -49,6 +52,9 @@ function main(): void {
     renderer = new THREE.WebGLRenderer( { antialias: true, canvas } );
     renderer.setSize( window.innerWidth, window.innerHeight );
     document.body.appendChild( renderer.domElement );
+
+    pointer = new THREE.Vector2();
+    raycaster = new THREE.Raycaster();
 
     const square: THREE.BoxGeometry = new THREE.BoxGeometry( 1, 0.1, 1 );
     const lightSquare: THREE.MeshBasicMaterial = new THREE.MeshBasicMaterial( { color: 0xE0C4A8 } );
@@ -91,6 +97,9 @@ function main(): void {
     controls.maxPolarAngle = Math.PI / 2;
     controls.enableDamping = true;
 
+    window.addEventListener( 'pointermove', onPointerMove );
+    window.addEventListener( 'click', onClick );
+
     requestAnimationFrame(animate);
 }
 
@@ -121,13 +130,15 @@ function addPieces( pieceMesh: THREE.Mesh ): void {
                 const knightMesh: THREE.Mesh = piece.children.find((child) => child.name === "knight");
                 knightMesh.scale.set( knightMesh.scale.x * 0.15, knightMesh.scale.y * 0.15, knightMesh.scale.z * 0.15 );
                 if ( pieceOn.color === 'b' ) {
-                    knightMesh.material = new THREE.MeshStandardMaterial( { color: 0x222222 } );
+                    knightMesh.material = new THREE.MeshStandardMaterial( { color: 0x222222, transparent: true,
+                        opacity: 1.0 } );
                     knightMesh.userData.color = 'b';
                     knightMesh.position.set( squarePosition.x, knightMesh.position.y, squarePosition.z );
                     scene.add(knightMesh);
                 } else if ( pieceOn.color === 'w' ) {
                     knightMesh.rotation.z = Math.PI;
-                    knightMesh.material = new THREE.MeshStandardMaterial( { color: 0xEEEEEE } );
+                    knightMesh.material = new THREE.MeshStandardMaterial( { color: 0xEEEEEE, transparent: true,
+                        opacity: 1.0 } );
                     knightMesh.userData.color = 'w';
                     knightMesh.position.set( squarePosition.x, knightMesh.position.y, squarePosition.z );
                     scene.add(knightMesh);
@@ -144,7 +155,8 @@ function addPieces( pieceMesh: THREE.Mesh ): void {
                 addPiece( piece, 0.14, pieceOn, "king", squarePosition, currentSquare );
                 break;
             default:
-                console.log("square has no piece starting on it");
+                break;
+                // console.log("square has no piece starting on it");
         }
     }
 }
@@ -158,12 +170,12 @@ function addPiece( pieces: THREE.Mesh,
     const mesh: THREE.Mesh = pieces.children.find((child) => child.name === `${piece}`);
     mesh.scale.set( mesh.scale.x * scale, mesh.scale.y * scale, mesh.scale.z * scale );
     if ( pieceOn.color === 'b' ) {
-        mesh.material = new THREE.MeshStandardMaterial( { color: 0x222222 } );
+        mesh.material = new THREE.MeshStandardMaterial( { color: 0x222222, transparent: true, opacity: 1.0 } );
         mesh.userData.color = 'b';
         mesh.position.set( squarePosition.x, mesh.position.y, squarePosition.z );
         scene.add(mesh);
     } else if ( pieceOn.color === 'w' ) {
-        mesh.material = new THREE.MeshStandardMaterial( { color: 0xEEEEEE } );
+        mesh.material = new THREE.MeshStandardMaterial( { color: 0xEEEEEE, transparent: true, opacity: 1.0 } );
         mesh.userData.color = 'w';
         mesh.position.set( squarePosition.x, mesh.position.y, squarePosition.z );
         scene.add(mesh);
@@ -171,15 +183,37 @@ function addPiece( pieces: THREE.Mesh,
     mesh.userData.currentSquare = currentSquare;
 }
 
+function resetMaterials() {
+    for ( let i = 0; i < scene.children.length; i++ ) {
+        if ( scene.children[i].material ) {
+            scene.children[i].material.opacity = scene.children[i].userData.currentSquare === selectedPiece ? 0.5 : 1.0;
+        }
+    }
+}
+
+function hoverPieces(): void {
+    raycaster.setFromCamera( pointer, camera );
+    const intersects = raycaster.intersectObjects( scene.children );
+    for (let i = 0; i < intersects.length; i++ ) {
+        const potentialPiece = intersects[i].object.name;
+        if ( potentialPiece ) {
+            intersects[i].object.material.transparent = true;
+            intersects[i].object.material.opacity = 0.5;
+        }
+    }
+}
 
 function animate(): void {
     controls.update();
+
     if (resizeRendererToDisplaySize(renderer)) {
-        const canvas: Element = renderer.domElement;
+        const canvas = renderer.domElement;
         camera.aspect = canvas.clientWidth / canvas.clientHeight;
         camera.updateProjectionMatrix();
     }
 
+    resetMaterials();
+    hoverPieces();
     renderer.render( scene, camera );
     requestAnimationFrame(animate);
 }
@@ -196,4 +230,39 @@ function resizeRendererToDisplaySize( renderer: THREE.WebGLRenderer ): boolean {
     return needResize;
 }
 
+function onPointerMove( event ) {
 
+    // calculate pointer position in normalized device coordinates
+    // (-1 to +1) for both components
+
+    pointer.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+    pointer.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+}
+
+function onClick( e )  {
+    raycaster.setFromCamera( pointer, camera );
+    let intersects = raycaster.intersectObjects( scene.children );
+    if ( intersects.length > 1 ) {
+        selectedPiece = intersects[0].object.userData.currentSquare;
+        return;
+    }
+
+    if ( selectedPiece ) {
+        console.log(`The piece moved from square ${selectedPiece}.`);
+        raycaster.setFromCamera( pointer, camera );
+        intersects = raycaster.intersectObjects( board.children );
+
+        if ( intersects.length > 0 && intersects[0].object.userData.square ) {
+            const targetSquare: Square = intersects[0].object.userData.square;
+            const selectedObject = scene.children.find((child) => child.userData.currentSquare === selectedPiece);
+            if ( !selectedObject || !targetSquare ) return;
+
+            const targetPosition = positionForSquare(targetSquare);
+            selectedObject.position.set(targetPosition.x, selectedObject.position.y, targetPosition.z);
+            selectedObject.square = targetSquare;
+
+            selectedPiece = null;
+        }
+    }
+}
