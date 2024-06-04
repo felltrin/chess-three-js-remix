@@ -77,13 +77,8 @@ function main(): void {
 
     const loader: GLTFLoader = new GLTFLoader();
     loader.load("pieces/chess.glb", function( gltf: GLTF ): void {
-        const pawnMesh: THREE.Mesh = gltf.scene.children.find((child) => child.name === "pawn");
-        // const pawnMesh = gltf.scene;
-        pawnMesh.scale.set( pawnMesh.scale.x * 0.2, pawnMesh.scale.y * 0.2, pawnMesh.scale.z * 0.2 );
-        pawnMesh.position.z = 7;
-        pawnMesh.position.x = 1;
-        // scene.add( pawnMesh.children.find((child) => child.name === "pawn") );
-        addPieces(pawnMesh);
+        const chessMesh = gltf.scene;
+        addPieces(chessMesh);
     });
 
     const light: THREE.PointLight = new THREE.PointLight(0xffffff, 200, 200);
@@ -99,7 +94,7 @@ function main(): void {
     requestAnimationFrame(animate);
 }
 
-function positionForSquare( square: string ) {
+function positionForSquare( square: string ): THREE.Mesh {
     const found: THREE.Mesh = board.children.find((child) => child.userData.square === square);
     if ( found ) {
         return found.position;
@@ -107,7 +102,7 @@ function positionForSquare( square: string ) {
     return null;
 }
 
-function addPieces( pieceMesh: THREE.Mesh ) {
+function addPieces( pieceMesh: THREE.Mesh ): void {
     let boardCubes: THREE.Mesh[] = board.children;
     for (let i = 0; i < 64; i++ ) {
         let currentSquare: Square = boardCubes[i].userData.square;
@@ -117,23 +112,63 @@ function addPieces( pieceMesh: THREE.Mesh ) {
 
         switch ( pieceOn.type ) {
             case 'p':
+                addPiece( piece, 0.2, pieceOn, "pawn", squarePosition, currentSquare );
+                break;
+            case 'r':
+                addPiece( piece, 0.15, pieceOn, "rook", squarePosition, currentSquare );
+                break;
+            case 'n':
+                const knightMesh: THREE.Mesh = piece.children.find((child) => child.name === "knight");
+                knightMesh.scale.set( knightMesh.scale.x * 0.15, knightMesh.scale.y * 0.15, knightMesh.scale.z * 0.15 );
                 if ( pieceOn.color === 'b' ) {
-                    piece.material = new THREE.MeshStandardMaterial( { color: 0x222222 } );
-                    piece.userData.color = 'b';
-                    piece.position.set( squarePosition.x, piece.position.y, squarePosition.z );
-                    scene.add(piece);
+                    knightMesh.material = new THREE.MeshStandardMaterial( { color: 0x222222 } );
+                    knightMesh.userData.color = 'b';
+                    knightMesh.position.set( squarePosition.x, knightMesh.position.y, squarePosition.z );
+                    scene.add(knightMesh);
                 } else if ( pieceOn.color === 'w' ) {
-                    piece.material = new THREE.MeshStandardMaterial( { color: 0xeeeeee } );
-                    piece.userData.color = 'w';
-                    piece.position.set( squarePosition.x, piece.position.y, squarePosition.z );
-                    scene.add(piece);
+                    knightMesh.rotation.z = Math.PI;
+                    knightMesh.material = new THREE.MeshStandardMaterial( { color: 0xEEEEEE } );
+                    knightMesh.userData.color = 'w';
+                    knightMesh.position.set( squarePosition.x, knightMesh.position.y, squarePosition.z );
+                    scene.add(knightMesh);
                 }
-                piece.userData.currentSquare = currentSquare;
+                knightMesh.userData.currentSquare = currentSquare;
+                break;
+            case 'b':
+                addPiece( piece, 0.175, pieceOn, "bishop", squarePosition, currentSquare );
+                break;
+            case "q":
+                addPiece( piece, 0.14, pieceOn, "queen", squarePosition, currentSquare );
+                break;
+            case "k":
+                addPiece( piece, 0.14, pieceOn, "king", squarePosition, currentSquare );
                 break;
             default:
                 console.log("square has no piece starting on it");
         }
     }
+}
+
+function addPiece( pieces: THREE.Mesh,
+                   scale: number,
+                   pieceOn: Piece,
+                   piece: string,
+                   squarePosition: THREE.Mesh,
+                   currentSquare: Square ): void {
+    const mesh: THREE.Mesh = pieces.children.find((child) => child.name === `${piece}`);
+    mesh.scale.set( mesh.scale.x * scale, mesh.scale.y * scale, mesh.scale.z * scale );
+    if ( pieceOn.color === 'b' ) {
+        mesh.material = new THREE.MeshStandardMaterial( { color: 0x222222 } );
+        mesh.userData.color = 'b';
+        mesh.position.set( squarePosition.x, mesh.position.y, squarePosition.z );
+        scene.add(mesh);
+    } else if ( pieceOn.color === 'w' ) {
+        mesh.material = new THREE.MeshStandardMaterial( { color: 0xEEEEEE } );
+        mesh.userData.color = 'w';
+        mesh.position.set( squarePosition.x, mesh.position.y, squarePosition.z );
+        scene.add(mesh);
+    }
+    mesh.userData.currentSquare = currentSquare;
 }
 
 
