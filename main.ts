@@ -155,8 +155,8 @@ function addPieces( pieceMesh: THREE.Mesh ): void {
                 addPiece( piece, 0.14, pieceOn, "king", squarePosition, currentSquare );
                 break;
             default:
+                console.log("square has no piece starting on it");
                 break;
-                // console.log("square has no piece starting on it");
         }
     }
 }
@@ -249,7 +249,6 @@ function onClick( e )  {
     }
 
     if ( selectedPiece ) {
-        console.log(`The piece moved from square ${selectedPiece}.`);
         raycaster.setFromCamera( pointer, camera );
         intersects = raycaster.intersectObjects( board.children );
 
@@ -258,11 +257,17 @@ function onClick( e )  {
             const selectedObject = scene.children.find((child) => child.userData.currentSquare === selectedPiece);
             if ( !selectedObject || !targetSquare ) return;
 
-            const targetPosition = positionForSquare(targetSquare);
-            selectedObject.position.set(targetPosition.x, selectedObject.position.y, targetPosition.z);
-            selectedObject.square = targetSquare;
+            try{
+                chess.move( { from: selectedPiece, to: targetSquare } );
+                const targetPosition = positionForSquare(targetSquare);
+                selectedObject.position.set(targetPosition.x, selectedObject.position.y, targetPosition.z);
+                selectedObject.square = targetSquare;
 
-            selectedPiece = null;
+                selectedPiece = null;
+            } catch (error) {
+                console.log("invalid move");
+                selectedPiece = null;
+            }
         }
     }
 }
