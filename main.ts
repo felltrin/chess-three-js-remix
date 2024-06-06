@@ -258,14 +258,26 @@ function onClick( e )  {
             if ( !selectedObject || !targetSquare ) return;
 
             try{
-                chess.move( { from: selectedPiece, to: targetSquare } );
+                if ( !selectedObject.square ) {
+                    chess.move( { from: selectedPiece, to: targetSquare } );
+                } else {
+                    chess.move( { from: selectedObject.square, to: targetSquare } );
+                }
                 const targetPosition = positionForSquare(targetSquare);
                 selectedObject.position.set(targetPosition.x, selectedObject.position.y, targetPosition.z);
                 selectedObject.square = targetSquare;
 
+                console.log(chess.ascii());
+                if ( chess.turn() === 'w' ) {
+                    console.log("It is now white's turn");
+                } else if ( chess.turn() === 'b' ) {
+                    console.log("It is now black's turn");
+                }
+
                 selectedPiece = null;
             } catch (error) {
-                console.log("invalid move");
+                // console.log("invalid move");
+                console.log(error);
                 selectedPiece = null;
             }
         }
