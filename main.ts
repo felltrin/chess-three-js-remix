@@ -196,7 +196,8 @@ function hoverPieces(): void {
     const intersects = raycaster.intersectObjects( scene.children );
     for (let i = 0; i < intersects.length; i++ ) {
         const potentialPiece = intersects[i].object.name;
-        if ( potentialPiece ) {
+        const playerTurn = chess.turn();
+        if ( potentialPiece && intersects[i].object.userData.color === playerTurn ) {
             intersects[i].object.material.transparent = true;
             intersects[i].object.material.opacity = 0.5;
         }
@@ -244,8 +245,10 @@ function onClick( e )  {
     raycaster.setFromCamera( pointer, camera );
     let intersects = raycaster.intersectObjects( scene.children );
     if ( intersects.length > 1 ) {
-        selectedPiece = intersects[0].object.userData.currentSquare;
-        return;
+        if( intersects[0].object.userData.color === chess.turn() ) {
+            selectedPiece = intersects[0].object.userData.currentSquare;
+            return;
+        }
     }
 
     if ( selectedPiece ) {
