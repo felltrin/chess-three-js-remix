@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader, GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { Chess, Square, Piece } from 'chess.js';
+import { Chess, Square, Piece, Move } from 'chess.js';
 
 
 window.addEventListener('DOMContentLoaded', main);
@@ -183,7 +183,7 @@ function addPiece( pieces: THREE.Mesh,
     mesh.userData.currentSquare = currentSquare;
 }
 
-function resetMaterials() {
+function resetMaterials(): void {
     for ( let i = 0; i < scene.children.length; i++ ) {
         if ( scene.children[i].material ) {
             scene.children[i].material.opacity = scene.children[i].userData.currentSquare === selectedPiece ? 0.5 : 1.0;
@@ -231,7 +231,7 @@ function resizeRendererToDisplaySize( renderer: THREE.WebGLRenderer ): boolean {
     return needResize;
 }
 
-function onPointerMove( event ) {
+function onPointerMove( event ): void {
 
     // calculate pointer position in normalized device coordinates
     // (-1 to +1) for both components
@@ -241,7 +241,7 @@ function onPointerMove( event ) {
 
 }
 
-function onClick( e )  {
+function onClick( e ): void  {
     raycaster.setFromCamera( pointer, camera );
     let intersects = raycaster.intersectObjects( scene.children );
     if ( intersects.length > 1 ) {
@@ -261,11 +261,25 @@ function onClick( e )  {
             if ( !selectedObject || !targetSquare ) return;
 
             try{
+                let moveInfo: Move;
                 if ( !selectedObject.square ) {
-                    chess.move( { from: selectedPiece, to: targetSquare } );
+                    moveInfo = chess.move( { from: selectedPiece, to: targetSquare } );
                 } else {
-                    chess.move( { from: selectedObject.square, to: targetSquare } );
+                    moveInfo = chess.move( { from: selectedObject.square, to: targetSquare } );
                 }
+
+                // remove captured piece
+                if ( moveInfo.flags === 'c' ) {
+                    let objectToBeCaptured: THREE.Mesh;
+                    if ( scene.children.find((child) => child.square === targetSquare )) {
+                        objectToBeCaptured = scene.children.find(( child ) => child.square === targetSquare );
+                    } else {
+                        objectToBeCaptured = scene.children.find((child) => child.userData.currentSquare === targetSquare );
+                    }
+                    // const objectToBeCaptured: THREE.Mesh = scene.children.find(( child ) => child.square === targetSquare );
+                    scene.remove(objectToBeCaptured);
+                }
+
                 const targetPosition = positionForSquare(targetSquare);
                 selectedObject.position.set(targetPosition.x, selectedObject.position.y, targetPosition.z);
                 selectedObject.square = targetSquare;
@@ -275,6 +289,7 @@ function onClick( e )  {
                     console.log("It is now white's turn");
                 } else if ( chess.turn() === 'b' ) {
                     console.log("It is now black's turn");
+                    console.log(chess.isCheckmate());
                 }
 
                 selectedPiece = null;
