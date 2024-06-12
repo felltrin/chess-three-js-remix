@@ -14,7 +14,9 @@ let renderer: THREE.WebGLRenderer,
     chess: Chess,
     pointer: THREE.Vector2,
     raycaster: THREE.Raycaster,
-    selectedPiece: Square | null = null;
+    selectedPiece: Square | null = null,
+    startGameBtn,
+    modalEl;
 
 const FILES: Record<number, string> = {
     0: 'a',
@@ -42,6 +44,8 @@ function main(): void {
     chess = new Chess();
 
     const canvas: Element = document.querySelector('#c');
+    startGameBtn = document.querySelector('#startGameBtn');
+    modalEl = document.querySelector('#modalEl');
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
     camera.position.set(0, 1, 3);
@@ -97,10 +101,14 @@ function main(): void {
     controls.maxPolarAngle = Math.PI / 2;
     controls.enableDamping = true;
 
-    window.addEventListener( 'pointermove', onPointerMove );
-    window.addEventListener( 'click', onClick );
+    // window.addEventListener( 'pointermove', onPointerMove );
+    // window.addEventListener( 'click', onClick );
 
-    requestAnimationFrame(animate);
+    startGameBtn.addEventListener("click", () => {
+        requestAnimationFrame(animate);
+        modalEl.style.display = 'none';
+    });
+
 }
 
 function positionForSquare( square: string ): THREE.Mesh {
@@ -204,6 +212,7 @@ function hoverPieces(): void {
     }
 }
 
+let animationId: number;
 function animate(): void {
     controls.update();
 
@@ -216,7 +225,16 @@ function animate(): void {
     resetMaterials();
     hoverPieces();
     renderer.render( scene, camera );
-    requestAnimationFrame(animate);
+    animationId = requestAnimationFrame(animate);
+
+    window.addEventListener( 'pointermove', onPointerMove );
+    window.addEventListener( 'click', onClick );
+
+    if ( chess.isGameOver() ) {
+        cancelAnimationFrame(animationId);
+        modalEl.style.display = 'flex';
+        window.removeEventListener( 'click', onClick );
+    }
 }
 
 function resizeRendererToDisplaySize( renderer: THREE.WebGLRenderer ): boolean {
@@ -260,44 +278,34 @@ function onClick( e ): void  {
             const selectedObject = scene.children.find((child) => child.userData.currentSquare === selectedPiece);
             if ( !selectedObject || !targetSquare ) return;
 
+            let moveInfo: Move;
             try{
-                let moveInfo: Move;
                 if ( !selectedObject.square ) {
                     moveInfo = chess.move( { from: selectedPiece, to: targetSquare } );
                 } else {
                     moveInfo = chess.move( { from: selectedObject.square, to: targetSquare } );
                 }
-
-                // remove captured piece
-                if ( moveInfo.flags === 'c' ) {
-                    let objectToBeCaptured: THREE.Mesh;
-                    if ( scene.children.find((child) => child.square === targetSquare )) {
-                        objectToBeCaptured = scene.children.find(( child ) => child.square === targetSquare );
-                    } else {
-                        objectToBeCaptured = scene.children.find((child) => child.userData.currentSquare === targetSquare );
-                    }
-                    // const objectToBeCaptured: THREE.Mesh = scene.children.find(( child ) => child.square === targetSquare );
-                    scene.remove(objectToBeCaptured);
-                }
-
-                const targetPosition = positionForSquare(targetSquare);
-                selectedObject.position.set(targetPosition.x, selectedObject.position.y, targetPosition.z);
-                selectedObject.square = targetSquare;
-
-                console.log(chess.ascii());
-                if ( chess.turn() === 'w' ) {
-                    console.log("It is now white's turn");
-                } else if ( chess.turn() === 'b' ) {
-                    console.log("It is now black's turn");
-                    console.log(chess.isCheckmate());
-                }
-
-                selectedPiece = null;
             } catch (error) {
-                // console.log("invalid move");
                 console.log(error);
                 selectedPiece = null;
             }
+
+            // remove captured piece
+            if ( moveInfo && moveInfo.flags === 'c' ) {
+                let objectToBeCaptured: THREE.Mesh;
+                if ( scene.children.find((child) => child.square === targetSquare )) {
+                    objectToBeCaptured = scene.children.find(( child ) => child.square === targetSquare );
+                } else {
+                    objectToBeCaptured = scene.children.find((child) => child.userData.currentSquare === targetSquare );
+                }
+                scene.remove(objectToBeCaptured);
+            }
+
+            const targetPosition = positionForSquare(targetSquare);
+            selectedObject.position.set(targetPosition.x, selectedObject.position.y, targetPosition.z);
+            selectedObject.square = targetSquare;
+
+            selectedPiece = null;
         }
     }
 }
