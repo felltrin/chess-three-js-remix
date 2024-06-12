@@ -41,11 +41,22 @@ const RANKS: Record<number, string> = {
 }
 
 function main(): void {
+
+    startGameBtn = document.querySelector('#startGameBtn');
+    modalEl = document.querySelector('#modalEl');
+
+    startGameBtn.addEventListener("click", () => {
+        init();
+        requestAnimationFrame(animate);
+        modalEl.style.display = 'none';
+    });
+
+}
+
+function init(): void {
     chess = new Chess();
 
     const canvas: Element = document.querySelector('#c');
-    startGameBtn = document.querySelector('#startGameBtn');
-    modalEl = document.querySelector('#modalEl');
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
     camera.position.set(0, 1, 3);
@@ -100,15 +111,6 @@ function main(): void {
     controls.enablePan = false;
     controls.maxPolarAngle = Math.PI / 2;
     controls.enableDamping = true;
-
-    // window.addEventListener( 'pointermove', onPointerMove );
-    // window.addEventListener( 'click', onClick );
-
-    startGameBtn.addEventListener("click", () => {
-        requestAnimationFrame(animate);
-        modalEl.style.display = 'none';
-    });
-
 }
 
 function positionForSquare( square: string ): THREE.Mesh {
@@ -285,27 +287,27 @@ function onClick( e ): void  {
                 } else {
                     moveInfo = chess.move( { from: selectedObject.square, to: targetSquare } );
                 }
+
+                // remove captured piece
+                if ( moveInfo && moveInfo.flags === 'c' ) {
+                    let objectToBeCaptured: THREE.Mesh;
+                    if ( scene.children.find((child) => child.square === targetSquare )) {
+                        objectToBeCaptured = scene.children.find(( child ) => child.square === targetSquare );
+                    } else {
+                        objectToBeCaptured = scene.children.find((child) => child.userData.currentSquare === targetSquare );
+                    }
+                    scene.remove(objectToBeCaptured);
+                }
+
+                const targetPosition = positionForSquare(targetSquare);
+                selectedObject.position.set(targetPosition.x, selectedObject.position.y, targetPosition.z);
+                selectedObject.square = targetSquare;
+
+                selectedPiece = null;
             } catch (error) {
                 console.log(error);
                 selectedPiece = null;
             }
-
-            // remove captured piece
-            if ( moveInfo && moveInfo.flags === 'c' ) {
-                let objectToBeCaptured: THREE.Mesh;
-                if ( scene.children.find((child) => child.square === targetSquare )) {
-                    objectToBeCaptured = scene.children.find(( child ) => child.square === targetSquare );
-                } else {
-                    objectToBeCaptured = scene.children.find((child) => child.userData.currentSquare === targetSquare );
-                }
-                scene.remove(objectToBeCaptured);
-            }
-
-            const targetPosition = positionForSquare(targetSquare);
-            selectedObject.position.set(targetPosition.x, selectedObject.position.y, targetPosition.z);
-            selectedObject.square = targetSquare;
-
-            selectedPiece = null;
         }
     }
 }
