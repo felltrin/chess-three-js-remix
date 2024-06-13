@@ -289,14 +289,19 @@ function onClick( e ): void  {
                 }
 
                 // remove captured piece
-                if ( moveInfo && moveInfo.flags === 'c' ) {
-                    let objectToBeCaptured: THREE.Mesh;
-                    if ( scene.children.find((child) => child.square === targetSquare )) {
-                        objectToBeCaptured = scene.children.find(( child ) => child.square === targetSquare );
-                    } else {
-                        objectToBeCaptured = scene.children.find((child) => child.userData.currentSquare === targetSquare );
-                    }
-                    scene.remove(objectToBeCaptured);
+                switch ( moveInfo.flags ) {
+                    case "c":
+                        let objectToBeCaptured: THREE.Mesh;
+                        if ( scene.children.find((child) => child.square === targetSquare )) {
+                            objectToBeCaptured = scene.children.find(( child ) => child.square === targetSquare );
+                        } else {
+                            objectToBeCaptured = scene.children.find((child) => child.userData.currentSquare === targetSquare );
+                        }
+                        scene.remove(objectToBeCaptured);
+                        break;
+                    default:
+                        console.log("nothing unusual here");
+                        break;
                 }
 
                 const targetPosition = positionForSquare(targetSquare);
