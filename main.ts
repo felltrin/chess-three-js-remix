@@ -16,7 +16,9 @@ let renderer: THREE.WebGLRenderer,
     raycaster: THREE.Raycaster,
     selectedPiece: Square | null = null,
     startGameBtn,
-    modalEl;
+    modalEl,
+    playerTurnElement,
+    playerTurn: string = "White";
 
 const FILES: Record<number, string> = {
     0: 'a',
@@ -44,6 +46,7 @@ function main(): void {
 
     startGameBtn = document.querySelector('#startGameBtn');
     modalEl = document.querySelector('#modalEl');
+    playerTurnElement = document.querySelector('#playerTurn');
 
     startGameBtn.addEventListener("click", () => {
         init();
@@ -55,6 +58,8 @@ function main(): void {
 
 function init(): void {
     chess = new Chess();
+
+    playerTurnElement.innerHTML = playerTurn;
 
     const canvas: Element = document.querySelector('#c');
     scene = new THREE.Scene();
@@ -307,6 +312,19 @@ function onClick( e ): void  {
                 const targetPosition = positionForSquare(targetSquare);
                 selectedObject.position.set(targetPosition.x, selectedObject.position.y, targetPosition.z);
                 selectedObject.square = targetSquare;
+
+                switch ( chess.turn() ) {
+                    case "w":
+                        playerTurn = 'White';
+                        break;
+                    case "b":
+                        playerTurn = 'Black';
+                        break;
+                    default:
+                        console.log("Couldn't find player turn");
+                        break;
+                }
+                playerTurnElement.innerHTML = playerTurn;
 
                 selectedPiece = null;
             } catch (error) {
