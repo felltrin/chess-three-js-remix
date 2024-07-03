@@ -18,7 +18,7 @@ let renderer: THREE.WebGLRenderer,
     startGameBtn,
     modalEl,
     playerTurnElement,
-    playerTurn: string = "White";
+    playerTurn: string;
 
 const FILES: Record<number, string> = {
     0: 'a',
@@ -53,12 +53,12 @@ function main(): void {
         requestAnimationFrame(animate);
         modalEl.style.display = 'none';
     });
-
 }
 
 function init(): void {
     chess = new Chess();
 
+    playerTurn = "white";
     playerTurnElement.innerHTML = playerTurn;
 
     const canvas: Element = document.querySelector('#c');
@@ -315,10 +315,10 @@ function onClick( e ): void  {
 
                 switch ( chess.turn() ) {
                     case "w":
-                        playerTurn = 'White';
+                        playerTurn = 'white';
                         break;
                     case "b":
-                        playerTurn = 'Black';
+                        playerTurn = 'black';
                         break;
                     default:
                         console.log("Couldn't find player turn");
@@ -334,3 +334,33 @@ function onClick( e ): void  {
         }
     }
 }
+
+document.addEventListener( 'DOMContentLoaded', () => {
+    let countdownTime = 10 * 60;
+
+    const countdownElement = document.getElementById('clockEl');
+
+    function updateClock(){
+        const minutes = Math.floor( countdownTime / 60 );
+        const seconds = countdownTime % 60;
+
+        const formattedTime = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        // Update the countdown element
+        countdownElement.textContent = formattedTime;
+
+        // Check if the countdown is finished
+        if (countdownTime <= 0) {
+            clearInterval(intervalId);
+            alert('Countdown finished!');
+        }
+
+        // Decrease the countdown time
+        countdownTime--;
+    }
+
+    // Update the countdown every second
+    const intervalId = setInterval(updateClock, 1000);
+
+    // Initialize the countdown display
+    updateClock();
+});
