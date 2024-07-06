@@ -304,6 +304,19 @@ function onClick( e ): void  {
                         }
                         scene.remove(objectToBeCaptured);
                         break;
+                    case "k":
+
+                        let rookToMove: THREE.Mesh;
+                        if( moveInfo.color === 'w' ) {
+                            rookToMove = scene.children.find((child) => child.userData.currentSquare === 'h1');
+                            const square = positionForSquare('f1');
+                            rookToMove.position.set(square.x, rookToMove.position.y, square.z);
+                            chess.put( { type: 'r', color: 'w'},  'f1' );
+                        }
+                        // else if (moveInfo.color === 'b' ) {
+                        //     return;
+                        // }
+                        break;
                     default:
                         console.log("nothing unusual here");
                         break;
@@ -312,6 +325,7 @@ function onClick( e ): void  {
                 const targetPosition = positionForSquare(targetSquare);
                 selectedObject.position.set(targetPosition.x, selectedObject.position.y, targetPosition.z);
                 selectedObject.square = targetSquare;
+                console.log(chess.ascii());
 
                 switch ( chess.turn() ) {
                     case "w":
