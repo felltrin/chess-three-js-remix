@@ -296,6 +296,7 @@ function onClick( e ): void  {
                 // remove captured piece
                 switch ( moveInfo.flags ) {
                     case "c":
+
                         let objectToBeCaptured: THREE.Mesh;
                         if ( scene.children.find((child) => child.square === targetSquare )) {
                             objectToBeCaptured = scene.children.find(( child ) => child.square === targetSquare );
@@ -311,8 +312,9 @@ function onClick( e ): void  {
                             rookToMove = scene.children.find((child) => child.userData.currentSquare === 'h1');
                             const square = positionForSquare('f1');
                             rookToMove.position.set(square.x, rookToMove.position.y, square.z);
-                            chess.put( { type: 'r', color: 'w'},  'f1' );
+                            rookToMove.square = 'f1';
                         }
+                        // black side king side castle
                         // else if (moveInfo.color === 'b' ) {
                         //     return;
                         // }
@@ -325,7 +327,6 @@ function onClick( e ): void  {
                 const targetPosition = positionForSquare(targetSquare);
                 selectedObject.position.set(targetPosition.x, selectedObject.position.y, targetPosition.z);
                 selectedObject.square = targetSquare;
-                console.log(chess.ascii());
 
                 switch ( chess.turn() ) {
                     case "w":
