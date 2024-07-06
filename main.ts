@@ -268,12 +268,18 @@ function onPointerMove( event ): void {
 
 function kingSwitchMagic(mesh: THREE.Mesh, scene: THREE.Scene, move: Move): void {
     const color: string = move.color;
-    const square: THREE.Mesh = positionForSquare('f1');
+    let square: THREE.Mesh = positionForSquare('f1');
     switch( color ){
         case 'w':
             mesh = scene.children.find((child) => child.userData.currentSquare === 'h1');
             mesh.position.set(square.x, mesh.position.y, square.z);
             mesh.square = 'f1';
+            break;
+        case 'b':
+            mesh = scene.children.find((child) => child.userData.currentSquare === 'h8');
+            square = positionForSquare('f8');
+            mesh.position.set(square.x, mesh.position.y, square.z);
+            mesh.square = 'f8';
             break;
         default:
             console.log("could not compute");
