@@ -266,6 +266,21 @@ function onPointerMove( event ): void {
 
 }
 
+function kingSwitchMagic(mesh: THREE.Mesh, scene: THREE.Scene, move: Move): void {
+    const color: string = move.color;
+    const square: THREE.Mesh = positionForSquare('f1');
+    switch( color ){
+        case 'w':
+            mesh = scene.children.find((child) => child.userData.currentSquare === 'h1');
+            mesh.position.set(square.x, mesh.position.y, square.z);
+            mesh.square = 'f1';
+            break;
+        default:
+            console.log("could not compute");
+            break;
+    }
+}
+
 function onClick( e ): void  {
     raycaster.setFromCamera( pointer, camera );
     let intersects = raycaster.intersectObjects( scene.children );
@@ -307,17 +322,8 @@ function onClick( e ): void  {
                         break;
                     case "k":
 
-                        let rookToMove: THREE.Mesh;
-                        if( moveInfo.color === 'w' ) {
-                            rookToMove = scene.children.find((child) => child.userData.currentSquare === 'h1');
-                            const square = positionForSquare('f1');
-                            rookToMove.position.set(square.x, rookToMove.position.y, square.z);
-                            rookToMove.square = 'f1';
-                        }
-                        // black side king side castle
-                        // else if (moveInfo.color === 'b' ) {
-                        //     return;
-                        // }
+                        let rookToMove: THREE.Mesh = null;
+                        kingSwitchMagic(rookToMove, scene, moveInfo);
                         break;
                     default:
                         console.log("nothing unusual here");
