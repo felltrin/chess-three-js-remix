@@ -287,6 +287,21 @@ function kingSwitchMagic(mesh: THREE.Mesh, scene: THREE.Scene, move: Move): void
     }
 }
 
+function queenSwitchMagic(mesh: THREE.Mesh, scene: THREE.Scene, move: Move): void {
+    const color: string = move.color;
+    let square: THREE.Mesh = positionForSquare('d1');
+    switch( color ){
+        case 'w':
+            mesh = scene.children.find( ( child ) => child.userData.currentSquare === 'a1');
+            mesh.position.set(square.x, mesh.position.y, square.z);
+            mesh.square = 'd1';
+            break;
+        default:
+            console.log("could not compute");
+            break;
+    }
+}
+
 function onClick( e ): void  {
     raycaster.setFromCamera( pointer, camera );
     let intersects = raycaster.intersectObjects( scene.children );
@@ -328,8 +343,13 @@ function onClick( e ): void  {
                         break;
                     case "k":
 
-                        let rookToMove: THREE.Mesh = null;
+                        let rookToMove: THREE.Mesh = undefined;
                         kingSwitchMagic(rookToMove, scene, moveInfo);
+                        break;
+                    case "q":
+
+                        let rook: THREE.Mesh = undefined;
+                        queenSwitchMagic(rook, scene, moveInfo);
                         break;
                     default:
                         console.log("nothing unusual here");
