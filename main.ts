@@ -296,6 +296,12 @@ function queenSwitchMagic(mesh: THREE.Mesh, scene: THREE.Scene, move: Move): voi
             mesh.position.set(square.x, mesh.position.y, square.z);
             mesh.square = 'd1';
             break;
+        case 'b':
+            mesh = scene.children.find( ( child ) => child.userData.currentSquare === 'a8');
+            square = positionForSquare('d8');
+            mesh.position.set(square.x, mesh.position.y, square.z);
+            mesh.square = 'd8';
+            break;
         default:
             console.log("could not compute");
             break;
