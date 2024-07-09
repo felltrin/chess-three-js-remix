@@ -18,7 +18,8 @@ let renderer: THREE.WebGLRenderer,
     startGameBtn,
     modalEl,
     playerTurnElement,
-    playerTurn: string;
+    playerTurn: string,
+    previousTurnLandSquare: Square | null = null;
 
 const FILES: Record<number, string> = {
     0: 'a',
@@ -308,6 +309,17 @@ function queenSwitchMagic(mesh: THREE.Mesh, scene: THREE.Scene, move: Move): voi
     }
 }
 
+function findMesh( targetSquare: Square ): THREE.Mesh {
+    let mesh: THREE.Mesh;
+    if ( scene.children.find((child) => child.square === targetSquare )) {
+        mesh = scene.children.find(( child ) => child.square === targetSquare );
+    } else {
+        mesh = scene.children.find((child) => child.userData.currentSquare === targetSquare );
+    }
+
+    return mesh;
+}
+
 function onClick( e ): void  {
     raycaster.setFromCamera( pointer, camera );
     let intersects = raycaster.intersectObjects( scene.children );
@@ -338,24 +350,26 @@ function onClick( e ): void  {
                 // remove captured piece
                 switch ( moveInfo.flags ) {
                     case "c":
-
                         let objectToBeCaptured: THREE.Mesh;
-                        if ( scene.children.find((child) => child.square === targetSquare )) {
-                            objectToBeCaptured = scene.children.find(( child ) => child.square === targetSquare );
-                        } else {
-                            objectToBeCaptured = scene.children.find((child) => child.userData.currentSquare === targetSquare );
-                        }
+                        objectToBeCaptured = findMesh( targetSquare );
                         scene.remove(objectToBeCaptured);
                         break;
                     case "k":
-
                         let rookToMove: THREE.Mesh = undefined;
                         kingSwitchMagic(rookToMove, scene, moveInfo);
                         break;
                     case "q":
-
                         let rook: THREE.Mesh = undefined;
                         queenSwitchMagic(rook, scene, moveInfo);
+                        break;
+                    case "e":
+                        // find the mesh that let the en passant happen
+                        let captureMesh: THREE.Mesh = undefined;
+                        if ( previousTurnLandSquare ) {
+                            // remove mesh from the scene
+                            captureMesh = findMesh( previousTurnLandSquare );
+                            scene.remove(captureMesh);
+                        }
                         break;
                     default:
                         console.log("nothing unusual here");
@@ -365,6 +379,7 @@ function onClick( e ): void  {
                 const targetPosition = positionForSquare(targetSquare);
                 selectedObject.position.set(targetPosition.x, selectedObject.position.y, targetPosition.z);
                 selectedObject.square = targetSquare;
+                previousTurnLandSquare = selectedObject.square;
 
                 switch ( chess.turn() ) {
                     case "w":
@@ -378,6 +393,7 @@ function onClick( e ): void  {
                         break;
                 }
                 playerTurnElement.innerHTML = playerTurn;
+
 
                 selectedPiece = null;
             } catch (error) {
