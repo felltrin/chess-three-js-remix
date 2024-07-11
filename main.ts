@@ -19,7 +19,9 @@ let renderer: THREE.WebGLRenderer,
     modalEl,
     playerTurnElement,
     playerTurn: string,
-    previousTurnLandSquare: Square | null = null;
+    previousTurnLandSquare: Square | null = null,
+    promotionContainer,
+    buttons;
 
 const FILES: Record<number, string> = {
     0: 'a',
@@ -48,6 +50,8 @@ function main(): void {
     startGameBtn = document.querySelector('#startGameBtn');
     modalEl = document.querySelector('#modalEl');
     playerTurnElement = document.querySelector('#playerTurn');
+    promotionContainer = document.getElementById('promotion-container');
+    buttons = document.querySelectorAll( '.promotion-buttons button' );
 
     startGameBtn.addEventListener("click", () => {
         init();
@@ -64,6 +68,7 @@ function init(): void {
 
     const canvas: Element = document.querySelector('#c');
     scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x58595B);
     camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
     camera.position.set(0, 1, 3);
     camera.position.y = 8;
@@ -342,9 +347,18 @@ function onClick( e ): void  {
             let moveInfo: Move;
             try{
                 if ( !selectedObject.square ) {
-                    moveInfo = chess.move( { from: selectedPiece, to: targetSquare } );
+                    moveInfo = chess.move( { from: selectedPiece, to: targetSquare, promotion: 'q' } );
                 } else {
-                    moveInfo = chess.move( { from: selectedObject.square, to: targetSquare } );
+                    moveInfo = chess.move( { from: selectedObject.square, to: targetSquare, promotion: 'q' } );
+                }
+                console.log(moveInfo);
+
+                // check if move is a pawn promotion
+                if ( moveInfo.piece === 'p' && ( moveInfo.to[1] === "1" || moveInfo.to[1] === '8')) {
+                    console.log("this is a pawn that needs to be promoted");
+                    selectedPiece = null;
+                    showPromotionDialog( moveInfo.from, moveInfo.to );
+                    return;
                 }
 
                 // remove captured piece
@@ -394,7 +408,6 @@ function onClick( e ): void  {
                 }
                 playerTurnElement.innerHTML = playerTurn;
 
-
                 selectedPiece = null;
             } catch (error) {
                 console.log(error);
@@ -402,6 +415,30 @@ function onClick( e ): void  {
             }
         }
     }
+}
+
+function showPromotionDialog( source: string, target: string ): void {
+    promotionContainer.style.display = 'block';
+
+    buttons.forEach(button => {
+        button.onclick = () => {
+            const promotionPiece = button.getAttribute('data-piece');
+            promotionContainer.style.display = 'none';
+            handlePromotionMove(source, target, promotionPiece);
+        };
+    });
+}
+
+function handlePromotionMove( source: string, target: string, promotionPiece ): Move {
+    let move: Move;
+    try {
+        move = chess.move( { from: source, to: target, promotion: promotionPiece } );
+    } catch(error) {
+        console.log(error);
+        return;
+    }
+
+    return move;
 }
 
 document.addEventListener( 'DOMContentLoaded', () => {

@@ -14,6 +14,23 @@
                 height: 100%;
                 display: block;
             }
+            .promotion-buttons {
+                text-align: center;
+                margin: 20px;
+            }
+            .promotion-buttons button {
+                font-size: 1em;
+                color: white;
+                background-color: #007bff;
+                border: none;
+                padding: 10px 20px;
+                margin: 5px;
+                cursor: pointer;
+                border-radius: 5px;
+            }
+            .promotion-buttons button:hover {
+                background-color: #0056b3;
+            }
         </style>
     </head>
     <body>
@@ -41,6 +58,12 @@
                     </button>
                 </div>
             </div>
+        </div>
+        <div id="promotion-container" class="promotion-buttons" style="display: none;">
+            <button data-piece="q">Queen</button>
+            <button data-piece="r">Rook</button>
+            <button data-piece="b">Bishop</button>
+            <button data-piece="n">Knight</button>
         </div>
 
         <canvas id="c"></canvas>
