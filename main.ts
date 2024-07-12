@@ -176,7 +176,6 @@ function addPieces( pieceMesh: THREE.Mesh ): void {
                 addPiece( piece, 0.14, pieceOn, "king", squarePosition, currentSquare );
                 break;
             default:
-                console.log("square has no piece starting on it");
                 break;
         }
     }
@@ -351,13 +350,28 @@ function onClick( e ): void  {
                 } else {
                     moveInfo = chess.move( { from: selectedObject.square, to: targetSquare, promotion: 'q' } );
                 }
-                console.log(moveInfo);
 
                 // check if move is a pawn promotion
                 if ( moveInfo.piece === 'p' && ( moveInfo.to[1] === "1" || moveInfo.to[1] === '8')) {
+                    // FIXME: REMOVE
                     console.log("this is a pawn that needs to be promoted");
-                    selectedPiece = null;
-                    showPromotionDialog( moveInfo.from, moveInfo.to );
+                    console.log(selectedObject);
+
+                    chess.undo();
+                    let promotionMove: Move;
+                    promotionMove = showPromotionDialog( moveInfo.from, moveInfo.to );
+
+                    switch ( promotionMove.flags ) {
+                        case 'c':
+                            let objectToBeCaptured: THREE.Mesh;
+                            objectToBeCaptured = findMesh( targetSquare );
+                            scene.remove( objectToBeCaptured );
+                            break;
+                        default:
+                            break;
+                    }
+
+                    moveMeshDone( targetSquare, selectedObject );
                     return;
                 }
 
@@ -386,29 +400,10 @@ function onClick( e ): void  {
                         }
                         break;
                     default:
-                        console.log("nothing unusual here");
                         break;
                 }
 
-                const targetPosition = positionForSquare(targetSquare);
-                selectedObject.position.set(targetPosition.x, selectedObject.position.y, targetPosition.z);
-                selectedObject.square = targetSquare;
-                previousTurnLandSquare = selectedObject.square;
-
-                switch ( chess.turn() ) {
-                    case "w":
-                        playerTurn = 'white';
-                        break;
-                    case "b":
-                        playerTurn = 'black';
-                        break;
-                    default:
-                        console.log("Couldn't find player turn");
-                        break;
-                }
-                playerTurnElement.innerHTML = playerTurn;
-
-                selectedPiece = null;
+                moveMeshDone(targetSquare, selectedObject);
             } catch (error) {
                 console.log(error);
                 selectedPiece = null;
@@ -417,16 +412,19 @@ function onClick( e ): void  {
     }
 }
 
-function showPromotionDialog( source: string, target: string ): void {
+function showPromotionDialog( source: string, target: string ): Move {
     promotionContainer.style.display = 'block';
+    let move: Move;
 
     buttons.forEach(button => {
         button.onclick = () => {
             const promotionPiece = button.getAttribute('data-piece');
             promotionContainer.style.display = 'none';
-            handlePromotionMove(source, target, promotionPiece);
+            move = handlePromotionMove(source, target, promotionPiece);
         };
     });
+
+    return move;
 }
 
 function handlePromotionMove( source: string, target: string, promotionPiece ): Move {
@@ -437,8 +435,31 @@ function handlePromotionMove( source: string, target: string, promotionPiece ): 
         console.log(error);
         return;
     }
+    // FIXME: REMOVE
+    console.log(chess.ascii());
 
     return move;
+}
+
+function moveMeshDone(targetSquare: Square, object): void {
+    const targetPosition = positionForSquare(targetSquare);
+    object.position.set(targetPosition.x, object.position.y, targetPosition.z);
+    object.square = targetSquare;
+    previousTurnLandSquare = object.square;
+
+    switch ( chess.turn() ) {
+        case "w":
+            playerTurn = 'white';
+            break;
+        case "b":
+            playerTurn = 'black';
+            break;
+        default:
+            console.log("Couldn't find player turn");
+            break;
+    }
+    playerTurnElement.innerHTML = playerTurn;
+    selectedPiece = null;
 }
 
 document.addEventListener( 'DOMContentLoaded', () => {
