@@ -21,7 +21,8 @@ let renderer: THREE.WebGLRenderer,
     playerTurn: string,
     previousTurnLandSquare: Square | null = null,
     promotionContainer,
-    buttons;
+    buttons,
+    maxEntropy: THREE.Mesh;
 
 const FILES: Record<number, string> = {
     0: 'a',
@@ -110,6 +111,7 @@ function init(): void {
     const loader: GLTFLoader = new GLTFLoader();
     loader.load("pieces/chess.glb", function( gltf: GLTF ): void {
         const chessMesh = gltf.scene;
+        maxEntropy = chessMesh;
         addPieces(chessMesh);
     });
 
@@ -340,7 +342,7 @@ function onClick( e ): void  {
 
         if ( intersects.length > 0 && intersects[0].object.userData.square ) {
             const targetSquare: Square = intersects[0].object.userData.square;
-            const selectedObject = scene.children.find((child) => child.userData.currentSquare === selectedPiece);
+            const selectedObject: THREE.Mesh = scene.children.find((child) => child.userData.currentSquare === selectedPiece);
             if ( !selectedObject || !targetSquare ) return;
 
             let moveInfo: Move;
@@ -353,25 +355,8 @@ function onClick( e ): void  {
 
                 // check if move is a pawn promotion
                 if ( moveInfo.piece === 'p' && ( moveInfo.to[1] === "1" || moveInfo.to[1] === '8')) {
-                    // FIXME: REMOVE
-                    console.log("this is a pawn that needs to be promoted");
-                    console.log(selectedObject);
-
                     chess.undo();
-                    let promotionMove: Move;
-                    promotionMove = showPromotionDialog( moveInfo.from, moveInfo.to );
-
-                    switch ( promotionMove.flags ) {
-                        case 'c':
-                            let objectToBeCaptured: THREE.Mesh;
-                            objectToBeCaptured = findMesh( targetSquare );
-                            scene.remove( objectToBeCaptured );
-                            break;
-                        default:
-                            break;
-                    }
-
-                    moveMeshDone( targetSquare, selectedObject );
+                    showPromotionDialog( moveInfo.from, moveInfo.to, targetSquare, selectedObject );
                     return;
                 }
 
@@ -412,33 +397,44 @@ function onClick( e ): void  {
     }
 }
 
-function showPromotionDialog( source: string, target: string ): Move {
+function showPromotionDialog( source: string, target: string, targetSquare: Square, selectedObject: THREE.Mesh ): void {
     promotionContainer.style.display = 'block';
-    let move: Move;
-
     buttons.forEach(button => {
         button.onclick = () => {
-            const promotionPiece = button.getAttribute('data-piece');
+            const promotionPiece: string = button.getAttribute('data-piece');
             promotionContainer.style.display = 'none';
-            move = handlePromotionMove(source, target, promotionPiece);
+            handlePromotionMove( source, target, promotionPiece, targetSquare, selectedObject );
         };
     });
-
-    return move;
 }
 
-function handlePromotionMove( source: string, target: string, promotionPiece ): Move {
+function handlePromotionMove( source: string,
+                              target: string,
+                              promotionPiece: string,
+                              targetSquare: Square,
+                              selectedObject: THREE.Mesh): void {
     let move: Move;
     try {
         move = chess.move( { from: source, to: target, promotion: promotionPiece } );
+        // console.log(move.flags);
+        switch ( move.flags ) {
+            case 'cp':
+                let objectToBeCaptured: THREE.Mesh;
+                objectToBeCaptured = findMesh( targetSquare );
+                scene.remove( objectToBeCaptured );
+                break;
+            default:
+                break;
+        }
+        moveMeshDone(targetSquare, selectedObject);
+        const piece = chess.get( selectedObject.square );
+        const square = positionForSquare( target );
+        scene.remove( selectedObject );
+        addPiece(maxEntropy, 0.14, piece, "queen", square, targetSquare );
     } catch(error) {
         console.log(error);
         return;
     }
-    // FIXME: REMOVE
-    console.log(chess.ascii());
-
-    return move;
 }
 
 function moveMeshDone(targetSquare: Square, object): void {
