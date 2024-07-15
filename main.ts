@@ -417,6 +417,8 @@ function handlePromotionMove( source: string,
     try {
         move = chess.move( { from: source, to: target, promotion: promotionPiece } );
         // console.log(move.flags);
+        // console.log(promotionPiece);
+
         switch ( move.flags ) {
             case 'cp':
                 let objectToBeCaptured: THREE.Mesh;
@@ -426,11 +428,22 @@ function handlePromotionMove( source: string,
             default:
                 break;
         }
+
         moveMeshDone(targetSquare, selectedObject);
         const piece = chess.get( selectedObject.square );
         const square = positionForSquare( target );
         scene.remove( selectedObject );
-        addPiece(maxEntropy, 0.14, piece, "queen", square, targetSquare );
+
+        switch ( promotionPiece ) {
+            case 'q':
+                addPiece(maxEntropy, 0.14, piece, "queen", square, targetSquare );
+                break;
+            default:
+                console.log("could not find piece");
+                break;
+        }
+
+        // addPiece(maxEntropy, 0.14, piece, "queen", square, targetSquare );
     } catch(error) {
         console.log(error);
         return;
