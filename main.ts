@@ -416,8 +416,6 @@ function handlePromotionMove( source: string,
     let move: Move;
     try {
         move = chess.move( { from: source, to: target, promotion: promotionPiece } );
-        // console.log(move.flags);
-        // console.log(promotionPiece);
 
         switch ( move.flags ) {
             case 'cp':
@@ -437,6 +435,9 @@ function handlePromotionMove( source: string,
         switch ( promotionPiece ) {
             case 'q':
                 addPiece(maxEntropy, 0.14, piece, "queen", square, targetSquare );
+                break;
+            case 'r':
+                addPiece(maxEntropy, 0.15, piece, "rook", square, targetSquare );
                 break;
             default:
                 console.log("could not find piece");
