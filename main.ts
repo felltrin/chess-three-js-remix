@@ -417,6 +417,7 @@ function handlePromotionMove( source: string,
     try {
         move = chess.move( { from: source, to: target, promotion: promotionPiece } );
 
+        // FIXME: Separate to adjacent function
         switch ( move.flags ) {
             case 'cp':
                 let objectToBeCaptured: THREE.Mesh;
@@ -432,12 +433,17 @@ function handlePromotionMove( source: string,
         const square = positionForSquare( target );
         scene.remove( selectedObject );
 
+        // FIXME: LIKEWISE
         switch ( promotionPiece ) {
             case 'q':
                 addPiece(maxEntropy, 0.14, piece, "queen", square, targetSquare );
                 break;
             case 'r':
                 addPiece(maxEntropy, 0.15, piece, "rook", square, targetSquare );
+                break;
+            case 'b':
+                addPiece( maxEntropy, 0.175, piece, "bishop", square, targetSquare );
+                // addPiece( piece, 0.175, pieceOn, "bishop", squarePosition, currentSquare );
                 break;
             default:
                 console.log("could not find piece");
