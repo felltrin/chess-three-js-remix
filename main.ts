@@ -134,6 +134,26 @@ function positionForSquare( square: string ): THREE.Mesh {
     return null;
 }
 
+function knightAddition( piece: THREE.Mesh, pieceOn: Piece, squarePosition: THREE.Mesh, currentSquare: Square ): void {
+    const knightMesh: THREE.Mesh = piece.children.find((child) => child.name === "knight");
+    knightMesh.scale.set( knightMesh.scale.x * 0.15, knightMesh.scale.y * 0.15, knightMesh.scale.z * 0.15 );
+    if ( pieceOn.color === 'b' ) {
+        knightMesh.material = new THREE.MeshStandardMaterial( { color: 0x222222, transparent: true,
+            opacity: 1.0 } );
+        knightMesh.userData.color = 'b';
+        knightMesh.position.set( squarePosition.x, knightMesh.position.y, squarePosition.z );
+        scene.add(knightMesh);
+    } else if ( pieceOn.color === 'w' ) {
+        knightMesh.rotation.z = Math.PI;
+        knightMesh.material = new THREE.MeshStandardMaterial( { color: 0xEEEEEE, transparent: true,
+            opacity: 1.0 } );
+        knightMesh.userData.color = 'w';
+        knightMesh.position.set( squarePosition.x, knightMesh.position.y, squarePosition.z );
+        scene.add(knightMesh);
+    }
+    knightMesh.userData.currentSquare = currentSquare;
+}
+
 function addPieces( pieceMesh: THREE.Mesh ): void {
     let boardCubes: THREE.Mesh[] = board.children;
     for (let i = 0; i < 64; i++ ) {
@@ -150,23 +170,7 @@ function addPieces( pieceMesh: THREE.Mesh ): void {
                 addPiece( piece, 0.15, pieceOn, "rook", squarePosition, currentSquare );
                 break;
             case 'n':
-                const knightMesh: THREE.Mesh = piece.children.find((child) => child.name === "knight");
-                knightMesh.scale.set( knightMesh.scale.x * 0.15, knightMesh.scale.y * 0.15, knightMesh.scale.z * 0.15 );
-                if ( pieceOn.color === 'b' ) {
-                    knightMesh.material = new THREE.MeshStandardMaterial( { color: 0x222222, transparent: true,
-                        opacity: 1.0 } );
-                    knightMesh.userData.color = 'b';
-                    knightMesh.position.set( squarePosition.x, knightMesh.position.y, squarePosition.z );
-                    scene.add(knightMesh);
-                } else if ( pieceOn.color === 'w' ) {
-                    knightMesh.rotation.z = Math.PI;
-                    knightMesh.material = new THREE.MeshStandardMaterial( { color: 0xEEEEEE, transparent: true,
-                        opacity: 1.0 } );
-                    knightMesh.userData.color = 'w';
-                    knightMesh.position.set( squarePosition.x, knightMesh.position.y, squarePosition.z );
-                    scene.add(knightMesh);
-                }
-                knightMesh.userData.currentSquare = currentSquare;
+                knightAddition( piece, pieceOn, squarePosition, currentSquare );
                 break;
             case 'b':
                 addPiece( piece, 0.175, pieceOn, "bishop", squarePosition, currentSquare );
@@ -429,8 +433,8 @@ function handlePromotionMove( source: string,
         }
 
         moveMeshDone(targetSquare, selectedObject);
-        const piece = chess.get( selectedObject.square );
-        const square = positionForSquare( target );
+        const piece: Piece = chess.get( selectedObject.square );
+        const square: THREE.Mesh = positionForSquare( target );
         scene.remove( selectedObject );
 
         // FIXME: LIKEWISE
@@ -443,7 +447,9 @@ function handlePromotionMove( source: string,
                 break;
             case 'b':
                 addPiece( maxEntropy, 0.175, piece, "bishop", square, targetSquare );
-                // addPiece( piece, 0.175, pieceOn, "bishop", squarePosition, currentSquare );
+                break;
+            case 'n':
+                knightAddition( maxEntropy, piece, square, targetSquare );
                 break;
             default:
                 console.log("could not find piece");
