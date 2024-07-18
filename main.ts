@@ -412,6 +412,41 @@ function showPromotionDialog( source: string, target: string, targetSquare: Squa
     });
 }
 
+function promotionMoveFlags( move: Move, targetSquare: Square ): void {
+    switch ( move.flags ) {
+        case 'cp':
+            let objectToBeCaptured: THREE.Mesh;
+            objectToBeCaptured = findMesh( targetSquare );
+            scene.remove( objectToBeCaptured );
+            break;
+        default:
+            break;
+    }
+}
+
+function promotionPieceSelection ( promotionPiece: string,
+                                   piece: Piece,
+                                   square: THREE.Mesh,
+                                   targetSquare: Square ) : void {
+    switch ( promotionPiece ) {
+        case 'q':
+            addPiece(maxEntropy, 0.14, piece, "queen", square, targetSquare );
+            break;
+        case 'r':
+            addPiece(maxEntropy, 0.15, piece, "rook", square, targetSquare );
+            break;
+        case 'b':
+            addPiece( maxEntropy, 0.175, piece, "bishop", square, targetSquare );
+            break;
+        case 'n':
+            knightAddition( maxEntropy, piece, square, targetSquare );
+            break;
+        default:
+            console.log("could not find piece");
+            break;
+    }
+}
+
 function handlePromotionMove( source: string,
                               target: string,
                               promotionPiece: string,
@@ -420,43 +455,12 @@ function handlePromotionMove( source: string,
     let move: Move;
     try {
         move = chess.move( { from: source, to: target, promotion: promotionPiece } );
-
-        // FIXME: Separate to adjacent function
-        switch ( move.flags ) {
-            case 'cp':
-                let objectToBeCaptured: THREE.Mesh;
-                objectToBeCaptured = findMesh( targetSquare );
-                scene.remove( objectToBeCaptured );
-                break;
-            default:
-                break;
-        }
-
+        promotionMoveFlags( move, targetSquare );
         moveMeshDone(targetSquare, selectedObject);
         const piece: Piece = chess.get( selectedObject.square );
         const square: THREE.Mesh = positionForSquare( target );
         scene.remove( selectedObject );
-
-        // FIXME: LIKEWISE
-        switch ( promotionPiece ) {
-            case 'q':
-                addPiece(maxEntropy, 0.14, piece, "queen", square, targetSquare );
-                break;
-            case 'r':
-                addPiece(maxEntropy, 0.15, piece, "rook", square, targetSquare );
-                break;
-            case 'b':
-                addPiece( maxEntropy, 0.175, piece, "bishop", square, targetSquare );
-                break;
-            case 'n':
-                knightAddition( maxEntropy, piece, square, targetSquare );
-                break;
-            default:
-                console.log("could not find piece");
-                break;
-        }
-
-        // addPiece(maxEntropy, 0.14, piece, "queen", square, targetSquare );
+        promotionPieceSelection( promotionPiece, piece, square, targetSquare );
     } catch(error) {
         console.log(error);
         return;
