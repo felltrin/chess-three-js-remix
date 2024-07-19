@@ -330,6 +330,35 @@ function findMesh( targetSquare: Square ): THREE.Mesh {
     return mesh;
 }
 
+function handleSpecialCases( moveInfo: Move, targetSquare: Square ): void {
+    switch ( moveInfo.flags ) {
+        case "c":
+            let objectToBeCaptured: THREE.Mesh;
+            objectToBeCaptured = findMesh( targetSquare );
+            scene.remove(objectToBeCaptured);
+            break;
+        case "k":
+            let rookToMove: THREE.Mesh = undefined;
+            kingSwitchMagic(rookToMove, scene, moveInfo);
+            break;
+        case "q":
+            let rook: THREE.Mesh = undefined;
+            queenSwitchMagic(rook, scene, moveInfo);
+            break;
+        case "e":
+            // find the mesh that let the en passant happen
+            let captureMesh: THREE.Mesh = undefined;
+            if ( previousTurnLandSquare ) {
+                // remove mesh from the scene
+                captureMesh = findMesh( previousTurnLandSquare );
+                scene.remove(captureMesh);
+            }
+            break;
+        default:
+            break;
+    }
+}
+
 function onClick( e ): void  {
     raycaster.setFromCamera( pointer, camera );
     let intersects = raycaster.intersectObjects( scene.children );
@@ -364,33 +393,8 @@ function onClick( e ): void  {
                     return;
                 }
 
-                // remove captured piece
-                switch ( moveInfo.flags ) {
-                    case "c":
-                        let objectToBeCaptured: THREE.Mesh;
-                        objectToBeCaptured = findMesh( targetSquare );
-                        scene.remove(objectToBeCaptured);
-                        break;
-                    case "k":
-                        let rookToMove: THREE.Mesh = undefined;
-                        kingSwitchMagic(rookToMove, scene, moveInfo);
-                        break;
-                    case "q":
-                        let rook: THREE.Mesh = undefined;
-                        queenSwitchMagic(rook, scene, moveInfo);
-                        break;
-                    case "e":
-                        // find the mesh that let the en passant happen
-                        let captureMesh: THREE.Mesh = undefined;
-                        if ( previousTurnLandSquare ) {
-                            // remove mesh from the scene
-                            captureMesh = findMesh( previousTurnLandSquare );
-                            scene.remove(captureMesh);
-                        }
-                        break;
-                    default:
-                        break;
-                }
+                // handles captured pieces, en passant and castling
+                handleSpecialCases( moveInfo, targetSquare );
 
                 moveMeshDone(targetSquare, selectedObject);
             } catch (error) {
@@ -468,7 +472,7 @@ function handlePromotionMove( source: string,
 }
 
 function moveMeshDone(targetSquare: Square, object): void {
-    const targetPosition = positionForSquare(targetSquare);
+    const targetPosition: THREE.Mesh = positionForSquare(targetSquare);
     object.position.set(targetPosition.x, object.position.y, targetPosition.z);
     object.square = targetSquare;
     previousTurnLandSquare = object.square;
@@ -488,16 +492,16 @@ function moveMeshDone(targetSquare: Square, object): void {
     selectedPiece = null;
 }
 
-document.addEventListener( 'DOMContentLoaded', () => {
-    let countdownTime = 10 * 60;
+document.addEventListener( 'DOMContentLoaded', (): void => {
+    let countdownTime: number = 10 * 60;
 
     const countdownElement = document.getElementById('clockEl');
 
     function updateClock(){
-        const minutes = Math.floor( countdownTime / 60 );
-        const seconds = countdownTime % 60;
+        const minutes: number = Math.floor( countdownTime / 60 );
+        const seconds: number = countdownTime % 60;
 
-        const formattedTime = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        const formattedTime: string = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
         // Update the countdown element
         countdownElement.textContent = formattedTime;
 
@@ -512,7 +516,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
     }
 
     // Update the countdown every second
-    const intervalId = setInterval(updateClock, 1000);
+    const intervalId: number = setInterval(updateClock, 1000);
 
     // Initialize the countdown display
     updateClock();
