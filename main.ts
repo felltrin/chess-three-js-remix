@@ -494,30 +494,33 @@ function moveMeshDone(targetSquare: Square, mesh: THREE.Mesh): void {
 }
 
 document.addEventListener( 'DOMContentLoaded', (): void => {
-    let countdownTime: number = 10 * 60;
-    const countdownElement = document.getElementById('clockEl');
+    let countdownTime: number = 10 * 60 * 1000;
+    const startButton: HTMLElement = document.getElementById("startGameBtn");
+    const timerElement: HTMLElement = document.getElementById('clockEl');
+    let timerInterval: number;
 
-    function updateClock(): void {
-        const minutes: number = Math.floor( countdownTime / 60 );
-        const seconds: number = countdownTime % 60;
-
-        const formattedTime: string = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-        // Update the countdown element
-        countdownElement.textContent = formattedTime;
-
-        // Check if the countdown is finished
-        if (countdownTime <= 0) {
-            clearInterval(intervalId);
-            alert('Countdown finished!');
-        }
-
-        // Decrease the countdown time
-        countdownTime--;
+    function formatTime( ms: number ) {
+        const totalSeconds = Math.floor(ms / 1000);
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
+        return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
     }
 
-    // Update the countdown every second
-    const intervalId: number = setInterval(updateClock, 1000);
+    function updateTimer(): void {
+        countdownTime -= 1000;
+        if ( countdownTime <= 0 ) {
+            clearInterval(timerInterval);
+            countdownTime = 0;
+            alert('Time is up!');
+        }
+        timerElement.textContent = formatTime(countdownTime);
+    }
 
-    // Initialize the countdown display
-    updateClock();
+    function startTimer() {
+        if (!timerInterval) {
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+    }
+
+    startButton.addEventListener( 'click', startTimer );
 });
