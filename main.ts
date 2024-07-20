@@ -15,14 +15,14 @@ let renderer: THREE.WebGLRenderer,
     pointer: THREE.Vector2,
     raycaster: THREE.Raycaster,
     selectedPiece: Square | null = null,
-    startGameBtn,
-    modalEl,
-    playerTurnElement,
     playerTurn: string,
     previousTurnLandSquare: Square | null = null,
-    promotionContainer,
-    buttons,
-    maxEntropy: THREE.Mesh;
+    maxEntropy: THREE.Mesh,
+    startGameBtn: Element,
+    modalEl: Element,
+    playerTurnElement: Element,
+    promotionContainer: Element,
+    buttons: NodeListOf<Element>;
 
 const FILES: Record<number, string> = {
     0: 'a',
@@ -127,7 +127,7 @@ function init(): void {
 }
 
 function positionForSquare( square: string ): THREE.Mesh {
-    const found: THREE.Mesh = board.children.find((child) => child.userData.square === square);
+    const found: THREE.Mesh = board.children.find(( child: THREE.Mesh ): boolean => child.userData.square === square);
     if ( found ) {
         return found.position;
     }
@@ -135,7 +135,7 @@ function positionForSquare( square: string ): THREE.Mesh {
 }
 
 function knightAddition( piece: THREE.Mesh, pieceOn: Piece, squarePosition: THREE.Mesh, currentSquare: Square ): void {
-    const knightMesh: THREE.Mesh = piece.children.find((child) => child.name === "knight");
+    const knightMesh: THREE.Mesh = piece.children.find( ( child: THREE.Mesh ): boolean => child.name === "knight");
     knightMesh.scale.set( knightMesh.scale.x * 0.15, knightMesh.scale.y * 0.15, knightMesh.scale.z * 0.15 );
     if ( pieceOn.color === 'b' ) {
         knightMesh.material = new THREE.MeshStandardMaterial( { color: 0x222222, transparent: true,
@@ -193,7 +193,7 @@ function addPiece( pieces: THREE.Mesh,
                    piece: string,
                    squarePosition: THREE.Mesh,
                    currentSquare: Square ): void {
-    const mesh: THREE.Mesh = pieces.children.find((child) => child.name === `${piece}`);
+    const mesh: THREE.Mesh = pieces.children.find( ( child: THREE.Mesh): boolean => child.name === `${piece}`);
     mesh.scale.set( mesh.scale.x * scale, mesh.scale.y * scale, mesh.scale.z * scale );
     if ( pieceOn.color === 'b' ) {
         mesh.material = new THREE.MeshStandardMaterial( { color: 0x222222, transparent: true, opacity: 1.0 } );
@@ -267,7 +267,7 @@ function resizeRendererToDisplaySize( renderer: THREE.WebGLRenderer ): boolean {
     return needResize;
 }
 
-function onPointerMove( event ): void {
+function onPointerMove( event: MouseEvent ): void {
 
     // calculate pointer position in normalized device coordinates
     // (-1 to +1) for both components
@@ -282,12 +282,12 @@ function kingSwitchMagic(mesh: THREE.Mesh, scene: THREE.Scene, move: Move): void
     let square: THREE.Mesh = positionForSquare('f1');
     switch( color ){
         case 'w':
-            mesh = scene.children.find((child) => child.userData.currentSquare === 'h1');
+            mesh = scene.children.find( ( child: THREE.Mesh ): boolean => child.userData.currentSquare === 'h1');
             mesh.position.set(square.x, mesh.position.y, square.z);
             mesh.square = 'f1';
             break;
         case 'b':
-            mesh = scene.children.find((child) => child.userData.currentSquare === 'h8');
+            mesh = scene.children.find( ( child: THREE.Mesh ): boolean => child.userData.currentSquare === 'h8');
             square = positionForSquare('f8');
             mesh.position.set(square.x, mesh.position.y, square.z);
             mesh.square = 'f8';
@@ -303,12 +303,12 @@ function queenSwitchMagic(mesh: THREE.Mesh, scene: THREE.Scene, move: Move): voi
     let square: THREE.Mesh = positionForSquare('d1');
     switch( color ){
         case 'w':
-            mesh = scene.children.find( ( child ) => child.userData.currentSquare === 'a1');
+            mesh = scene.children.find( ( child: THREE.Mesh ) => child.userData.currentSquare === 'a1');
             mesh.position.set(square.x, mesh.position.y, square.z);
             mesh.square = 'd1';
             break;
         case 'b':
-            mesh = scene.children.find( ( child ) => child.userData.currentSquare === 'a8');
+            mesh = scene.children.find( ( child: THREE.Mesh ) => child.userData.currentSquare === 'a8');
             square = positionForSquare('d8');
             mesh.position.set(square.x, mesh.position.y, square.z);
             mesh.square = 'd8';
@@ -321,10 +321,10 @@ function queenSwitchMagic(mesh: THREE.Mesh, scene: THREE.Scene, move: Move): voi
 
 function findMesh( targetSquare: Square ): THREE.Mesh {
     let mesh: THREE.Mesh;
-    if ( scene.children.find((child) => child.square === targetSquare )) {
-        mesh = scene.children.find(( child ) => child.square === targetSquare );
+    if ( scene.children.find(( child: THREE.Mesh ): boolean => child.square === targetSquare )) {
+        mesh = scene.children.find(( child: THREE.Mesh ): boolean => child.square === targetSquare );
     } else {
-        mesh = scene.children.find((child) => child.userData.currentSquare === targetSquare );
+        mesh = scene.children.find(( child: THREE.Mesh ): boolean => child.userData.currentSquare === targetSquare );
     }
 
     return mesh;
@@ -375,7 +375,8 @@ function onClick( e ): void  {
 
         if ( intersects.length > 0 && intersects[0].object.userData.square ) {
             const targetSquare: Square = intersects[0].object.userData.square;
-            const selectedObject: THREE.Mesh = scene.children.find((child) => child.userData.currentSquare === selectedPiece);
+            const selectedObject: THREE.Mesh =
+                scene.children.find( ( child: THREE.Mesh ): boolean => child.userData.currentSquare === selectedPiece);
             if ( !selectedObject || !targetSquare ) return;
 
             let moveInfo: Move;
@@ -408,7 +409,7 @@ function onClick( e ): void  {
 function showPromotionDialog( source: string, target: string, targetSquare: Square, selectedObject: THREE.Mesh ): void {
     promotionContainer.style.display = 'block';
     buttons.forEach(button => {
-        button.onclick = () => {
+        button.onclick = (): void => {
             const promotionPiece: string = button.getAttribute('data-piece');
             promotionContainer.style.display = 'none';
             handlePromotionMove( source, target, promotionPiece, targetSquare, selectedObject );
@@ -471,11 +472,11 @@ function handlePromotionMove( source: string,
     }
 }
 
-function moveMeshDone(targetSquare: Square, object): void {
+function moveMeshDone(targetSquare: Square, mesh: THREE.Mesh): void {
     const targetPosition: THREE.Mesh = positionForSquare(targetSquare);
-    object.position.set(targetPosition.x, object.position.y, targetPosition.z);
-    object.square = targetSquare;
-    previousTurnLandSquare = object.square;
+    mesh.position.set(targetPosition.x, mesh.position.y, targetPosition.z);
+    mesh.square = targetSquare;
+    previousTurnLandSquare = mesh.square;
 
     switch ( chess.turn() ) {
         case "w":
@@ -494,10 +495,9 @@ function moveMeshDone(targetSquare: Square, object): void {
 
 document.addEventListener( 'DOMContentLoaded', (): void => {
     let countdownTime: number = 10 * 60;
-
     const countdownElement = document.getElementById('clockEl');
 
-    function updateClock(){
+    function updateClock(): void {
         const minutes: number = Math.floor( countdownTime / 60 );
         const seconds: number = countdownTime % 60;
 
