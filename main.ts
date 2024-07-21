@@ -406,7 +406,8 @@ function onClick( e ): void  {
     }
 }
 
-function showPromotionDialog( source: string, target: string, targetSquare: Square, selectedObject: THREE.Mesh ): void {
+function showPromotionDialog( source: string,
+                              target: string, targetSquare: Square, selectedObject: THREE.Mesh ): void {
     promotionContainer.style.display = 'block';
     buttons.forEach(button => {
         button.onclick = (): void => {

@@ -31,6 +31,12 @@
             .promotion-buttons button:hover {
                 background-color: #0056b3;
             }
+            .timer {
+                font-size: 1em;
+                font-family: Arial, sans-serif;
+                text-align: center;
+                margin: 0px;
+            }
         </style>
     </head>
     <body>
@@ -38,10 +44,10 @@
         <div class="ml-2 mt-1 select-none fixed text-white">
             <span>Turn: </span><span id="playerTurn">white</span>
             <div id="playerClock">
-                <span>White: </span><span id="clockEl">10:00</span>
+                <span>White: </span><span id="clockEl" class="timer">10:00</span>
             </div>
             <div id="blackPlayerClock">
-                <span>Black: </span><span id="blackClockEl">10:00</span>
+                <span>Black: </span><span id="blackClockEl" class="timer">10:00</span>
             </div>
         </div>
 
