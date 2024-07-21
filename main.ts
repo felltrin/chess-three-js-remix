@@ -15,7 +15,7 @@ let renderer: THREE.WebGLRenderer,
     pointer: THREE.Vector2,
     raycaster: THREE.Raycaster,
     selectedPiece: Square | null = null,
-    playerTurn: string,
+    playerTurn: string = "white",
     previousTurnLandSquare: Square | null = null,
     maxEntropy: THREE.Mesh,
     startGameBtn: Element,
@@ -156,7 +156,7 @@ function knightAddition( piece: THREE.Mesh, pieceOn: Piece, squarePosition: THRE
 
 function addPieces( pieceMesh: THREE.Mesh ): void {
     let boardCubes: THREE.Mesh[] = board.children;
-    for (let i = 0; i < 64; i++ ) {
+    for (let i: number = 0; i < 64; i++ ) {
         let currentSquare: Square = boardCubes[i].userData.square;
         let pieceOn: Piece = chess.get( currentSquare );
         const piece: THREE.Mesh = pieceMesh.clone(true);
@@ -210,7 +210,7 @@ function addPiece( pieces: THREE.Mesh,
 }
 
 function resetMaterials(): void {
-    for ( let i = 0; i < scene.children.length; i++ ) {
+    for ( let i: number = 0; i < scene.children.length; i++ ) {
         if ( scene.children[i].material ) {
             scene.children[i].material.opacity = scene.children[i].userData.currentSquare === selectedPiece ? 0.5 : 1.0;
         }
@@ -220,7 +220,7 @@ function resetMaterials(): void {
 function hoverPieces(): void {
     raycaster.setFromCamera( pointer, camera );
     const intersects = raycaster.intersectObjects( scene.children );
-    for (let i = 0; i < intersects.length; i++ ) {
+    for (let i: number = 0; i < intersects.length; i++ ) {
         const potentialPiece = intersects[i].object.name;
         const playerTurn = chess.turn();
         if ( potentialPiece && intersects[i].object.userData.color === playerTurn ) {
@@ -494,33 +494,88 @@ function moveMeshDone(targetSquare: Square, mesh: THREE.Mesh): void {
 }
 
 document.addEventListener( 'DOMContentLoaded', (): void => {
-    let countdownTime: number = 10 * 60 * 1000;
+    let whiteRemainingTime: number = 10 * 60 * 1000;
+    let blackRemainingTime: number = 10 * 60 * 1000;
+    const blackTimerElement: HTMLElement = document.getElementById("blackClockEl");
+    const whiteTimerElement: HTMLElement = document.getElementById("clockEl");
     const startButton: HTMLElement = document.getElementById("startGameBtn");
-    const timerElement: HTMLElement = document.getElementById('clockEl');
-    let timerInterval: number;
+    let whiteTimerInterval: number,
+        blackTimerInterval: number,
+        switchInterval: number,
+        isTimerRunning: boolean = false;
 
-    function formatTime( ms: number ) {
-        const totalSeconds = Math.floor(ms / 1000);
-        const minutes = Math.floor(totalSeconds / 60);
-        const seconds = totalSeconds % 60;
+
+    function formatTime( ms: number ): string {
+        const totalSeconds: number = Math.floor(ms / 1000);
+        const minutes: number = Math.floor(totalSeconds / 60);
+        const seconds: number = totalSeconds % 60;
         return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
     }
 
-    function updateTimer(): void {
-        countdownTime -= 1000;
-        if ( countdownTime <= 0 ) {
-            clearInterval(timerInterval);
-            countdownTime = 0;
-            alert('Time is up!');
+    function updateWhiteTimer(): void {
+        whiteRemainingTime -= 1000;
+        if ( whiteRemainingTime <= 0 ) {
+            clearInterval(whiteTimerInterval);
+            whiteRemainingTime = 0;
         }
-        timerElement.textContent = formatTime(countdownTime);
+        whiteTimerElement.textContent = formatTime(whiteRemainingTime);
     }
 
-    function startTimer() {
-        if (!timerInterval) {
-            timerInterval = setInterval(updateTimer, 1000);
+    function updateBlackTimer(): void {
+        blackRemainingTime -= 1000;
+        if ( blackRemainingTime <= 0 ) {
+            clearInterval(blackTimerInterval);
+            blackRemainingTime = 0;
+        }
+        blackTimerElement.textContent = formatTime(blackRemainingTime);
+    }
+
+    function startWhiteTimer(): void {
+        whiteTimerInterval = setInterval(updateWhiteTimer, 1000);
+    }
+
+    function startBlackTimer(): void {
+        blackTimerInterval = setInterval(updateBlackTimer, 1000);
+    }
+
+    function stopTimers(): void {
+        clearInterval(whiteTimerInterval);
+        clearInterval(blackTimerInterval);
+        clearInterval(switchInterval);
+    }
+
+    function switchTimers(): void {
+        switch ( playerTurn ) {
+            case 'white':
+                clearInterval(blackTimerInterval);
+                startWhiteTimer();
+                break;
+            case 'black':
+                clearInterval( whiteTimerInterval );
+                startBlackTimer();
+                break;
+            default:
+                console.log("could not switch timer for some reason");
+                break;
         }
     }
 
-    startButton.addEventListener( 'click', startTimer );
+    function checkSwitchCondition() {
+        if ( isTimerRunning ) {
+            switchTimers();
+        }
+    }
+
+    function startTimers() {
+        if ( !isTimerRunning ) {
+            isTimerRunning = true;
+            checkSwitchCondition();
+            switchInterval = setInterval( checkSwitchCondition, 500 );
+        }
+    }
+
+    startButton.addEventListener( 'click', startTimers );
+
+    whiteTimerElement.textContent = formatTime(whiteRemainingTime);
+    blackTimerElement.textContent = formatTime(blackRemainingTime);
 });
