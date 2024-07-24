@@ -498,6 +498,7 @@ document.addEventListener( 'DOMContentLoaded', (): void => {
     const startingMinutes = 10;
     let time: number = startingMinutes * 60 * 1000;
     let countdownInterval: number;
+    let isRunning: boolean = false;
 
     const countdownEl: HTMLElement = document.getElementById('clockEl');
     const startButton: HTMLElement = document.getElementById("startGameBtn");
@@ -515,23 +516,26 @@ document.addEventListener( 'DOMContentLoaded', (): void => {
         if (time < 0) {
             clearInterval(countdownInterval);
             countdownEl.innerHTML = "Time's up!";
+            isRunning = false;
         }
     }
 
     function startCountdown(): void {
-        if (countdownInterval) clearInterval(countdownInterval);
+        if (isRunning) return;
         time = startingMinutes * 60 * 1000; // reset the time each start
         countdownInterval = setInterval(updateCountdown, 1000);
+        isRunning = true;
     }
 
-    function stopCountdown(interval: number) {
-        clearInterval(interval);
+    function stopCountdown(): void {
+        clearInterval(countdownInterval);
+        isRunning = false;
     }
 
-    function resumeCountdown() {
-        if (!countdownInterval) {
-            countdownInterval = setInterval(updateCountdown, 1000);
-        }
+    function resumeCountdown(): void {
+        if ( isRunning ) return;
+        countdownInterval = setInterval(updateCountdown, 1000);
+        isRunning = true;
     }
 
     function playerCheck(): void {
@@ -541,7 +545,7 @@ document.addEventListener( 'DOMContentLoaded', (): void => {
                 resumeCountdown();
                 break;
             case 'black':
-                stopCountdown(countdownInterval);
+                stopCountdown();
                 break;
             default:
                 break;
