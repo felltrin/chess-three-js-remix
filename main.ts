@@ -1,7 +1,7 @@
 import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { GLTFLoader, GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { Chess, Square, Piece, Move } from 'chess.js';
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+import {GLTF, GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
+import {Chess, Move, Piece, Square} from 'chess.js';
 
 
 window.addEventListener('DOMContentLoaded', main);
@@ -497,6 +497,7 @@ function moveMeshDone(targetSquare: Square, mesh: THREE.Mesh): void {
 document.addEventListener( 'DOMContentLoaded', (): void => {
     const startingMinutes = 10;
     let time: number = startingMinutes * 60 * 1000;
+    let countdownInterval: number;
 
     const countdownEl: HTMLElement = document.getElementById('clockEl');
     const startButton: HTMLElement = document.getElementById("startGameBtn");
@@ -508,17 +509,47 @@ document.addEventListener( 'DOMContentLoaded', (): void => {
         return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
     }
 
-    function startCountdown(): void {
-        setInterval(updateCountdown, 1000);
+    function updateCountdown(): void {
+        countdownEl.innerHTML = formatTime(time);
+        time -= 1000;
+        if (time < 0) {
+            clearInterval(countdownInterval);
+            countdownEl.innerHTML = "Time's up!";
+        }
     }
 
-    function updateCountdown(): void {
-        const result: string = formatTime(time);
-        countdownEl.innerHTML = `${result}`;
-        time -= 1000;
+    function startCountdown(): void {
+        if (countdownInterval) clearInterval(countdownInterval);
+        time = startingMinutes * 60 * 1000; // reset the time each start
+        countdownInterval = setInterval(updateCountdown, 1000);
+    }
+
+    function stopCountdown(interval: number) {
+        clearInterval(interval);
+    }
+
+    function resumeCountdown() {
+        if (!countdownInterval) {
+            countdownInterval = setInterval(updateCountdown, 1000);
+        }
+    }
+
+    function playerCheck(): void {
+        switch ( playerTurn ) {
+            case 'white':
+                // stopCountdown(countdownInterval);
+                resumeCountdown();
+                break;
+            case 'black':
+                stopCountdown(countdownInterval);
+                break;
+            default:
+                break;
+        }
     }
 
     startButton.addEventListener( 'click', startCountdown );
+    setInterval(playerCheck, 500);
 });
 
 
