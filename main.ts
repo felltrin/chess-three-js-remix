@@ -497,10 +497,14 @@ function moveMeshDone(targetSquare: Square, mesh: THREE.Mesh): void {
 document.addEventListener( 'DOMContentLoaded', (): void => {
     const startingMinutes = 10;
     let time: number = startingMinutes * 60 * 1000;
+    let otherTime: number = startingMinutes * 60 * 1000;
     let countdownInterval: number;
+    let otherCountdownInterval: number;
     let isRunning: boolean = false;
+    let isSecondRunning: boolean = false;
 
     const countdownEl: HTMLElement = document.getElementById('clockEl');
+    const otherCountdownEl: HTMLElement = document.getElementById('blackClockEl');
     const startButton: HTMLElement = document.getElementById("startGameBtn");
 
     function formatTime( ms: number ): string {
@@ -538,14 +542,36 @@ document.addEventListener( 'DOMContentLoaded', (): void => {
         isRunning = true;
     }
 
+    function updateOtherCountdown(): void {
+        otherCountdownEl.innerHTML = formatTime(otherTime);
+        otherTime -= 1000;
+        if (otherTime < 0) {
+            clearInterval(countdownInterval);
+            otherCountdownEl.innerHTML = "Time's up!";
+            isSecondRunning = false;
+        }
+    }
+
+    function resumeSecondCountdown(): void {
+        if ( isSecondRunning ) return;
+        otherCountdownInterval = setInterval(updateOtherCountdown, 1000);
+        isSecondRunning = true;
+    }
+
+    function stopSecondCountdown(): void {
+        clearInterval(otherCountdownInterval);
+        isSecondRunning = false;
+    }
+
     function playerCheck(): void {
         switch ( playerTurn ) {
             case 'white':
-                // stopCountdown(countdownInterval);
+                stopSecondCountdown();
                 resumeCountdown();
                 break;
             case 'black':
                 stopCountdown();
+                resumeSecondCountdown();
                 break;
             default:
                 break;
