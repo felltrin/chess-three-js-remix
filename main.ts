@@ -578,8 +578,10 @@ document.addEventListener( 'DOMContentLoaded', (): void => {
         }
     }
 
-    startButton.addEventListener( 'click', startCountdown );
-    setInterval(playerCheck, 500);
+    startButton.addEventListener("click", () => {
+        startCountdown();
+        setInterval( playerCheck, 500 );
+    });
 });
 
 
