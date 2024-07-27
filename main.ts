@@ -514,7 +514,7 @@ document.addEventListener( 'DOMContentLoaded', (): void => {
 
     function updateCountdown(): void {
         countdownEl.innerHTML = formatTime(time);
-        time -= 30000;
+        time -= 1000;
         if (time < 0) {
             clearInterval(countdownInterval);
             countdownEl.innerHTML = "Time's up!";
