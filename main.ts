@@ -249,9 +249,7 @@ function animate(): void {
     window.addEventListener( 'click', onClick );
 
     if ( chess.isGameOver() ) {
-        cancelAnimationFrame(animationId);
-        modalEl.style.display = 'flex';
-        window.removeEventListener( 'click', onClick );
+        gameEnd();
     }
 }
 
@@ -516,11 +514,12 @@ document.addEventListener( 'DOMContentLoaded', (): void => {
 
     function updateCountdown(): void {
         countdownEl.innerHTML = formatTime(time);
-        time -= 1000;
+        time -= 30000;
         if (time < 0) {
             clearInterval(countdownInterval);
             countdownEl.innerHTML = "Time's up!";
             isRunning = false;
+            gameEnd();
         }
     }
 
@@ -546,9 +545,10 @@ document.addEventListener( 'DOMContentLoaded', (): void => {
         otherCountdownEl.innerHTML = formatTime(otherTime);
         otherTime -= 1000;
         if (otherTime < 0) {
-            clearInterval(countdownInterval);
+            clearInterval(otherCountdownInterval);
             otherCountdownEl.innerHTML = "Time's up!";
             isSecondRunning = false;
+            gameEnd();
         }
     }
 
@@ -583,6 +583,12 @@ document.addEventListener( 'DOMContentLoaded', (): void => {
         setInterval( playerCheck, 500 );
     });
 });
+
+function gameEnd() {
+    cancelAnimationFrame(animationId);
+    modalEl.style.display = 'flex';
+    window.removeEventListener( 'click', onClick );
+}
 
 
 
