@@ -59,6 +59,8 @@ function main(): void {
     playerTurnElement = document.querySelector('#playerTurn');
     promotionContainer = document.getElementById('promotion-container');
     buttons = document.querySelectorAll( '.promotion-buttons button' );
+    countdownEl = document.getElementById('clockEl');
+    otherCountdownEl = document.getElementById('blackClockEl');
 
     startGameBtn.addEventListener("click", () => {
         init();
@@ -72,6 +74,8 @@ function init(): void {
 
     playerTurn = "white";
     playerTurnElement.innerHTML = playerTurn;
+    countdownEl.innerHTML = "10:00";
+    otherCountdownEl.innerHTML = "10:00";
 
     const canvas: Element = document.querySelector('#c');
     scene = new THREE.Scene();
@@ -504,16 +508,16 @@ document.addEventListener( 'DOMContentLoaded', (): void => {
     const startingMinutes = 10;
     let time: number = startingMinutes * 60 * 1000;
     let otherTime: number = startingMinutes * 60 * 1000;
-    // let countdownInterval: number;
-    // let otherCountdownInterval: number;
     let isRunning: boolean = false;
     let isSecondRunning: boolean = false;
+    const startButton: HTMLElement = document.getElementById("startGameBtn");
 
-    countdownEl = document.getElementById('clockEl');
-    otherCountdownEl = document.getElementById('blackClockEl');
+    // let countdownInterval: number;
+    // let otherCountdownInterval: number;
+    // countdownEl = document.getElementById('clockEl');
+    // otherCountdownEl = document.getElementById('blackClockEl');
     // const countdownEl: HTMLElement = document.getElementById('clockEl');
     // const otherCountdownEl: HTMLElement = document.getElementById('blackClockEl');
-    const startButton: HTMLElement = document.getElementById("startGameBtn");
 
     function formatTime( ms: number ): string {
         const totalSeconds: number = Math.floor(ms / 1000);
@@ -526,7 +530,8 @@ document.addEventListener( 'DOMContentLoaded', (): void => {
         countdownEl.innerHTML = formatTime(time);
         time -= 1000;
         if (time < 0) {
-            clearTimer( countdownInterval, countdownEl );
+            clearInterval( countdownInterval );
+            countdownEl.innerHTML = "Time's up!";
             isRunning = false;
             gameEnd();
         }
@@ -554,7 +559,9 @@ document.addEventListener( 'DOMContentLoaded', (): void => {
         otherCountdownEl.innerHTML = formatTime(otherTime);
         otherTime -= 1000;
         if (otherTime < 0) {
-            clearTimer( otherCountdownInterval, otherCountdownEl );
+            // clearTimer( otherCountdownInterval, otherCountdownEl );
+            clearInterval( otherCountdownInterval);
+            otherCountdownEl.innerHTML = "Time's up!";
             isSecondRunning = false;
             gameEnd();
         }
@@ -596,11 +603,11 @@ function gameEnd(): void {
     cancelAnimationFrame(animationId);
     modalEl.style.display = 'flex';
     window.removeEventListener( 'click', onClick );
+    clearInterval(playerCheckInterval);
 }
 
 function clearTimer( interval: number, element: HTMLElement ): void {
     clearInterval(interval);
-    clearInterval(playerCheckInterval);
     element.innerHTML = "Time's up!";
 }
 
