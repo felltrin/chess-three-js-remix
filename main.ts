@@ -62,7 +62,7 @@ function main(): void {
     countdownEl = document.getElementById('clockEl');
     otherCountdownEl = document.getElementById('blackClockEl');
 
-    startGameBtn.addEventListener("click", () => {
+    startGameBtn.addEventListener("click", (): void => {
         init();
         requestAnimationFrame(animate);
         modalEl.style.display = 'none';
@@ -508,16 +508,9 @@ document.addEventListener( 'DOMContentLoaded', (): void => {
     const startingMinutes = 10;
     let time: number = startingMinutes * 60 * 1000;
     let otherTime: number = startingMinutes * 60 * 1000;
-    let isRunning: boolean = false;
-    let isSecondRunning: boolean = false;
+    let isRunning: boolean;
+    let isSecondRunning: boolean;
     const startButton: HTMLElement = document.getElementById("startGameBtn");
-
-    // let countdownInterval: number;
-    // let otherCountdownInterval: number;
-    // countdownEl = document.getElementById('clockEl');
-    // otherCountdownEl = document.getElementById('blackClockEl');
-    // const countdownEl: HTMLElement = document.getElementById('clockEl');
-    // const otherCountdownEl: HTMLElement = document.getElementById('blackClockEl');
 
     function formatTime( ms: number ): string {
         const totalSeconds: number = Math.floor(ms / 1000);
@@ -559,7 +552,6 @@ document.addEventListener( 'DOMContentLoaded', (): void => {
         otherCountdownEl.innerHTML = formatTime(otherTime);
         otherTime -= 1000;
         if (otherTime < 0) {
-            // clearTimer( otherCountdownInterval, otherCountdownEl );
             clearInterval( otherCountdownInterval);
             otherCountdownEl.innerHTML = "Time's up!";
             isSecondRunning = false;
@@ -594,6 +586,8 @@ document.addEventListener( 'DOMContentLoaded', (): void => {
     }
 
     startButton.addEventListener("click", (): void => {
+        isRunning = false;
+        isSecondRunning = false;
         startCountdown();
         playerCheckInterval = setInterval( playerCheck, 500 );
     });
