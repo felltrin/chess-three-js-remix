@@ -121,7 +121,7 @@ This is an example of how to list things you need to use the software and how to
 
 1. Clone the repo
    ```sh
-   git clone https://github.com/github_username/repo_name.git
+   git clone https://github.com/felltrin/chess-three-js-remix.git
    ```
 2. Install NPM packages
    ```sh
@@ -134,6 +134,11 @@ This is an example of how to list things you need to use the software and how to
 4. Activate the virtual environment
     ```sh
    . env/bin/activate 
+   ```
+   
+5. Launch Vite
+    ```sh 
+   npx vite 
    ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
