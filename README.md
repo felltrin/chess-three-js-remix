@@ -34,10 +34,10 @@
   <p align="center">
     This is a chess game using a 3D graphics library, THREE.js
     <br />
-    <a href="https://threejs.org/"><strong>Explore the docs »</strong></a>
+    <a href="https://threejs.org/docs/index.html#manual/en/introduction/Creating-a-scene"><strong>Explore the docs »</strong></a>
     <br />
     <br />
-    <a href="https://github.com/github_username/repo_name">View Demo</a>
+    <a href="https://youtu.be/NyTn6RYsmkU">View Demo</a>
     ·
     <a href="https://github.com/felltrin/chess-three-js-remix/issues/new">Report Bug</a>
     ·
