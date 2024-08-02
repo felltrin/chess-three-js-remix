@@ -78,7 +78,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-This is a chess game made with the chess.js library for the game logic and THREE.js for the visualization of the chess game. It features a timer for traditional style play, functional with castling, en passant and promotion and includes a leaderboard.
+This is a chess game made with the [chess.js](https://github.com/jhlywa/chess.js) library for the game logic and THREE.js for the visualization of the chess game. It features a timer for traditional style play, functional with castling, en passant and promotion and includes a leaderboard.
 
 [//]: # (Here's a blank template to get started: To avoid retyping too much info. Do a search and replace with your text editor for the following: `github_username`, `repo_name`, `twitter_handle`, `linkedin_username`, `email_client`, `email`, `project_title`, `project_description`)
 
