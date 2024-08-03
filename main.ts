@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+// @ts-ignore
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {GLTF, GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
 import {Chess, Move, Piece, Square} from 'chess.js';
@@ -19,10 +20,10 @@ let renderer: THREE.WebGLRenderer,
     previousTurnLandSquare: Square | null = null,
     maxEntropy: THREE.Mesh,
     startGameBtn: Element,
-    modalEl: Element,
+    modalEl: HTMLElement,
     playerTurnElement: Element,
-    promotionContainer: Element,
-    buttons: NodeListOf<Element>,
+    promotionContainer: HTMLElement,
+    buttons: NodeListOf<HTMLElement>,
     countdownInterval: number,
     otherCountdownInterval: number,
     playerCheckInterval: number,
@@ -369,7 +370,7 @@ function handleSpecialCases( moveInfo: Move, targetSquare: Square ): void {
     }
 }
 
-function onClick( e ): void  {
+function onClick(): void  {
     raycaster.setFromCamera( pointer, camera );
     let intersects = raycaster.intersectObjects( scene.children );
     if ( intersects.length > 1 ) {
