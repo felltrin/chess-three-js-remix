@@ -1,5 +1,7 @@
 <!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
+
 <a name="readme-top"></a>
+
 <!--
 *** Thanks for checking out the Best-README-Template. If you have a suggestion
 *** that would make this better, please fork the repo and create a pull request
@@ -7,8 +9,6 @@
 *** Don't forget to give the project a star!
 *** Thanks again! Now go create something AMAZING! :D
 -->
-
-
 
 <!-- PROJECT SHIELDS -->
 <!--
@@ -18,14 +18,13 @@
 *** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
 *** https://www.markdownguide.org/basic-syntax/#reference-style-links
 -->
+
 [![LinkedIn][linkedin-shield]][linkedin-url]
-
-
 
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-  <a href="https://github.com/felltrin/chess-three-js-remix">
+  <a href="https://3d-chess.tiiny.site/">
     <img src="public/pieces/github-pic.png" alt="Logo" width="128">
   </a>
 
@@ -44,8 +43,6 @@
     <a href="https://github.com/felltrin/chess-three-js-remix/issues/new">Request Feature</a>
   </p>
 </div>
-
-
 
 <!-- TABLE OF CONTENTS -->
 <details>
@@ -73,48 +70,44 @@
   </ol>
 </details>
 
-
-
 <!-- ABOUT THE PROJECT -->
+
 ## About The Project
 
 This is a chess game made with the [chess.js](https://github.com/jhlywa/chess.js) library for the game logic and THREE.js for the visualization of the chess game. It features a timer for traditional style play, functional with castling, en passant and promotion and includes a leaderboard.
 
-
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
 
 ### Built With
 
-* [![THREE.js][Next.js]][Next-url]
-* [![Typescript][React.js]][React-url]
-* [![Vue][Vue.js]][Vue-url]
-* [![Angular][Angular.io]][Angular-url]
-* [![Svelte][Svelte.dev]][Svelte-url]
+- [![THREE.js][Next.js]][Next-url]
+- [![Typescript][React.js]][React-url]
+- [![Vue][Vue.js]][Vue-url]
+- [![Angular][Angular.io]][Angular-url]
+- [![Svelte][Svelte.dev]][Svelte-url]
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
-
 <!-- GETTING STARTED -->
+
 ## Getting Started
 
 ### Prerequisites
 
 This is an example of how to list things you need to use the software and how to install them.
-* npm
+
+- npm
   ```sh
   npm install npm@latest -g
   ```
-* THREE.js
-    ```sh
-    npm install --save three
-    ```
-* Vite
-    ```sh
-    npm install --save-dev vite
-    ```
+- THREE.js
+  ```sh
+  npm install --save three
+  ```
+- Vite
+  ```sh
+  npm install --save-dev vite
+  ```
 
 ### Installation
 
@@ -131,20 +124,18 @@ This is an example of how to list things you need to use the software and how to
    nodeenv env
    ```
 4. Activate the virtual environment
-    ```sh
-   . env/bin/activate 
+   ```sh
+   . env/bin/activate
    ```
-   
 5. Launch Vite
-    ```sh 
-   npx vite 
+   ```sh
+   npm run dev
    ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
-
 <!-- USAGE EXAMPLES -->
+
 ## Usage
 
 Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
@@ -153,23 +144,21 @@ Use this space to show useful examples of how a project can be used. Additional 
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
-
 <!-- ROADMAP -->
+
 ## Roadmap
 
 - [ ] Piece Textures
 - [ ] Board Textures
 - [ ] Online Play
-    - [ ] Leaderboard
+  - [ ] Leaderboard
 
 See the [open issues](https://github.com/felltrin/chess-three-js-remix/issues) for a full list of proposed features (and known issues).
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
- 
-
 
 <!-- CONTRIBUTING -->
+
 ## Contributing
 
 Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
@@ -185,18 +174,16 @@ Don't forget to give the project a star! Thanks again!
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
-
 <!-- LICENSE -->
+
 ## License
 
 Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
-
 <!-- CONTACT -->
+
 ## Contact
 
 Lucius Holzinger - [@ballernumb3rone](https://x.com/ballernumb3rone) - luciholzinger@gmail.com
@@ -205,20 +192,17 @@ Project Link: [https://github.com/felltrin/chess-three-js-remix](https://github.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
-
 <!-- ACKNOWLEDGMENTS -->
+
 ## Acknowledgments
 
-* [Inspiration](https://www.youtube.com/watch?v=4ZgkMS5rH3E)
-
+- [Inspiration](https://www.youtube.com/watch?v=4ZgkMS5rH3E)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
-
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+
 [contributors-shield]: https://img.shields.io/github/contributors/github_username/repo_name.svg?style=for-the-badge
 [contributors-url]: https://github.com/github_username/repo_name/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/github_username/repo_name.svg?style=for-the-badge
@@ -247,4 +231,4 @@ Project Link: [https://github.com/felltrin/chess-three-js-remix](https://github.
 [Bootstrap.com]: https://img.shields.io/badge/Bootstrap-563D7C?style=for-the-badge&logo=bootstrap&logoColor=white
 [Bootstrap-url]: https://getbootstrap.com
 [JQuery.com]: https://img.shields.io/badge/jQuery-0769AD?style=for-the-badge&logo=jquery&logoColor=white
-[JQuery-url]: https://jquery.com 
+[JQuery-url]: https://jquery.com

@@ -18,17 +18,17 @@ let renderer: THREE.WebGLRenderer,
     selectedPiece: Square | null = null,
     playerTurn: string = "white",
     previousTurnLandSquare: Square | null = null,
-    maxEntropy: THREE.Mesh,
-    startGameBtn: Element,
-    modalEl: HTMLElement,
-    playerTurnElement: Element,
-    promotionContainer: HTMLElement,
+    maxEntropy: THREE.Group<THREE.Object3DEventMap>,
+    startGameBtn: HTMLElement | null,
+    modalEl: HTMLElement | null,
+    playerTurnElement: HTMLElement | null,
+    promotionContainer: HTMLElement | null,
     buttons: NodeListOf<HTMLElement>,
     countdownInterval: number,
     otherCountdownInterval: number,
     playerCheckInterval: number,
-    countdownEl: HTMLElement,
-    otherCountdownEl: HTMLElement;
+    countdownEl: HTMLElement | null,
+    otherCountdownEl: HTMLElement | null;
 
 
 const FILES: Record<number, string> = {
@@ -63,11 +63,16 @@ function main(): void {
     countdownEl = document.getElementById('clockEl');
     otherCountdownEl = document.getElementById('blackClockEl');
 
-    startGameBtn.addEventListener("click", (): void => {
-        init();
-        requestAnimationFrame(animate);
-        modalEl.style.display = 'none';
-    });
+    if (startGameBtn) {
+        startGameBtn.addEventListener("click", (): void => {
+            init();
+            requestAnimationFrame(animate);
+            if ( modalEl ) {
+                modalEl.style.display = 'none';
+            }
+        });
+    }
+    
 }
 
 function init(): void {
@@ -78,7 +83,7 @@ function init(): void {
     countdownEl.innerHTML = "10:00";
     otherCountdownEl.innerHTML = "10:00";
 
-    const canvas: Element = document.querySelector('#c');
+    const canvas: HTMLElement | null = document.querySelector('#c');
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0x58595B);
     camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
@@ -100,9 +105,9 @@ function init(): void {
 
     board = new THREE.Group();
     let squarePosition: string = "";
-    for ( let x = 0; x < 8; x++ ) {
-        for ( let z = 0; z < 8; z++ ) {
-            let cube: THREE.Mesh;
+    for ( let x: number = 0; x < 8; x++ ) {
+        for ( let z: number = 0; z < 8; z++ ) {
+            let cube: THREE.Mesh<THREE.BoxGeometry, THREE.MeshBasicMaterial, THREE.Object3DEventMap>;
             if ( z % 2 !== 0 ) {
                 cube = new THREE.Mesh( square, x % 2 === 0 ? lightSquare : darkSquare );
                 squarePosition = FILES[z] + RANKS[x];
@@ -121,7 +126,7 @@ function init(): void {
 
     const loader: GLTFLoader = new GLTFLoader();
     loader.load("pieces/chess.glb", function( gltf: GLTF ): void {
-        const chessMesh = gltf.scene;
+        const chessMesh: THREE.Group<THREE.Object3DEventMap> = gltf.scene;
         maxEntropy = chessMesh;
         addPieces(chessMesh);
     });
@@ -137,7 +142,7 @@ function init(): void {
     controls.enableDamping = true;
 }
 
-function positionForSquare( square: string ): THREE.Mesh {
+function positionForSquare( square: string ): THREE.Vector3 {
     const found: THREE.Mesh = board.children.find(( child: THREE.Mesh ): boolean => child.userData.square === square);
     if ( found ) {
         return found.position;
@@ -165,13 +170,13 @@ function knightAddition( piece: THREE.Mesh, pieceOn: Piece, squarePosition: THRE
     knightMesh.userData.currentSquare = currentSquare;
 }
 
-function addPieces( pieceMesh: THREE.Mesh ): void {
+function addPieces(pieceMesh: THREE.Group<THREE.Object3DEventMap>): void {
     let boardCubes: THREE.Mesh[] = board.children;
     for (let i: number = 0; i < 64; i++ ) {
         let currentSquare: Square = boardCubes[i].userData.square;
         let pieceOn: Piece = chess.get( currentSquare );
-        const piece: THREE.Mesh = pieceMesh.clone(true);
-        const squarePosition: THREE.Mesh = positionForSquare( currentSquare );
+        const piece: THREE.Group<THREE.Object3DEventMap> = pieceMesh.clone(true);
+        const squarePosition: THREE.Vector3 = positionForSquare( currentSquare );
 
         switch ( pieceOn.type ) {
             case 'p':
@@ -290,7 +295,7 @@ function onPointerMove( event: MouseEvent ): void {
 
 function kingSwitchMagic(mesh: THREE.Mesh, scene: THREE.Scene, move: Move): void {
     const color: string = move.color;
-    let square: THREE.Mesh = positionForSquare('f1');
+    let square: THREE.Vector3 = positionForSquare('f1');
     switch( color ){
         case 'w':
             mesh = scene.children.find( ( child: THREE.Mesh ): boolean => child.userData.currentSquare === 'h1');
@@ -311,7 +316,7 @@ function kingSwitchMagic(mesh: THREE.Mesh, scene: THREE.Scene, move: Move): void
 
 function queenSwitchMagic(mesh: THREE.Mesh, scene: THREE.Scene, move: Move): void {
     const color: string = move.color;
-    let square: THREE.Mesh = positionForSquare('d1');
+    let square: THREE.Vector3 = positionForSquare('d1');
     switch( color ){
         case 'w':
             mesh = scene.children.find( ( child: THREE.Mesh ) => child.userData.currentSquare === 'a1');
