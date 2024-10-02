@@ -1,8 +1,8 @@
 import * as THREE from 'three';
-// @ts-ignore
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {GLTF, GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
 import {Chess, Move, Piece, Square} from 'chess.js';
+import {Color} from "three";
 
 
 window.addEventListener('DOMContentLoaded', main);
@@ -235,10 +235,10 @@ function resetMaterials(): void {
 
 function hoverPieces(): void {
     raycaster.setFromCamera( pointer, camera );
-    const intersects = raycaster.intersectObjects( scene.children );
+    const intersects: THREE.Raycaster = raycaster.intersectObjects( scene.children );
     for (let i: number = 0; i < intersects.length; i++ ) {
         const potentialPiece = intersects[i].object.name;
-        const playerTurn = chess.turn();
+        const playerTurn: Color = chess.turn();
         if ( potentialPiece && intersects[i].object.userData.color === playerTurn ) {
             intersects[i].object.material.transparent = true;
             intersects[i].object.material.opacity = 0.5;
