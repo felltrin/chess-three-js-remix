@@ -251,12 +251,13 @@ function hoverPieces(): void {
 
 function moveBlackPiece(): number {
     const move: Object = game.aiMove(0);
-    const from: string = Object.keys(move)[0].toLowerCase();
+    const from: Square = Object.keys(move)[0].toLowerCase();
     const to: Square = Object.values(move)[0].toLowerCase();
     const blackMove: Move = chess.move({from: from, to: to});
-    const meshForThePiece: THREE.Mesh = scene.children.find(( child: THREE.Mesh ): boolean => child.userData.currentSquare === from);
+    const meshForThePiece: THREE.Mesh = findMesh( from );
 
-    moveMeshDone(to, meshForThePiece);
+    handleSpecialCases( blackMove, to );
+    moveMeshDone( to, meshForThePiece );
 
     return 0;
 }
@@ -364,8 +365,7 @@ function findMesh( targetSquare: Square ): THREE.Mesh {
 function handleSpecialCases( moveInfo: Move, targetSquare: Square ): void {
     switch ( moveInfo.flags ) {
         case "c":
-            let objectToBeCaptured: THREE.Mesh;
-            objectToBeCaptured = findMesh( targetSquare );
+            const objectToBeCaptured: THREE.Mesh = findMesh( targetSquare );
             scene.remove(objectToBeCaptured);
             break;
         case "k":
@@ -458,8 +458,7 @@ function showPromotionDialog( source: string,
 function promotionMoveFlags( move: Move, targetSquare: Square ): void {
     switch ( move.flags ) {
         case 'cp':
-            let objectToBeCaptured: THREE.Mesh;
-            objectToBeCaptured = findMesh( targetSquare );
+            const objectToBeCaptured = findMesh( targetSquare );
             scene.remove( objectToBeCaptured );
             break;
         default:
