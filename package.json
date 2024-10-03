@@ -5,9 +5,11 @@
   },
   "dependencies": {
     "chess.js": "^1.0.0-beta.8",
+    "js-chess-engine": "^1.0.2",
     "three": "^0.165.0"
   },
   "devDependencies": {
+    "@types/node": "^22.7.4",
     "@types/three": "^0.167.1",
     "vite": "^5.2.12"
   }
