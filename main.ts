@@ -3,6 +3,7 @@ import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {GLTF, GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
 import {Chess, Move, Piece, Square} from 'chess.js';
 import {Color} from "three";
+import {Game, move, status, moves, aiMove, getFen } from 'js-chess-engine';
 
 
 window.addEventListener('DOMContentLoaded', main);
@@ -28,7 +29,8 @@ let renderer: THREE.WebGLRenderer,
     otherCountdownInterval: number,
     playerCheckInterval: number,
     countdownEl: HTMLElement | null,
-    otherCountdownEl: HTMLElement | null;
+    otherCountdownEl: HTMLElement | null,
+    aiGame: Game;
 
 
 const FILES: Record<number, string> = {
@@ -77,6 +79,7 @@ function main(): void {
 
 function init(): void {
     chess = new Chess();
+    aiGame = new Game();
 
     playerTurn = "white";
     playerTurnElement.innerHTML = playerTurn;
