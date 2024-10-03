@@ -261,9 +261,7 @@ function moveBlackPiece(): number {
     const from: string = Object.keys(move)[0].toLowerCase();
     const to: Square = Object.values(move)[0].toLowerCase();
     const blackMove: Move = chess.move({from: from, to: to});
-    // const found: THREE.Mesh = board.children.find(( child: THREE.Mesh ): boolean => child.userData.square === square);
     const meshForThePiece: THREE.Mesh = scene.children.find(( child: THREE.Mesh ): boolean => child.userData.currentSquare === from);
-    console.log(meshForThePiece);
 
     moveMeshDone(to, meshForThePiece);
 
@@ -422,7 +420,6 @@ function onClick(): void  {
             let moveInfo: Move;
             try{
                 if ( !selectedObject.square ) {
-                    // console.log(`${selectedPiece}, ${targetSquare}`);
                     moveInfo = chess.move( { from: selectedPiece, to: targetSquare, promotion: 'q' } );
                     game.move(selectedPiece, targetSquare);
                 } else {
@@ -445,7 +442,6 @@ function onClick(): void  {
                 if( chess.turn() === 'b' ) {
                     moveBlackPiece();
                 }
-                // console.log(chess.turn());
             } catch (error) {
                 console.log(error);
                 selectedPiece = null;
