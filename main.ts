@@ -30,7 +30,7 @@ let renderer: THREE.WebGLRenderer,
     playerCheckInterval: number,
     countdownEl: HTMLElement | null,
     otherCountdownEl: HTMLElement | null,
-    aiGame: Game;
+    game: Game;
 
 
 const FILES: Record<number, string> = {
@@ -79,7 +79,14 @@ function main(): void {
 
 function init(): void {
     chess = new Chess();
-    aiGame = new Game();
+    game = new Game();
+
+    // whenever a move is made to chess, apply to game
+    /*
+    * 1. move to chess, update game [x]
+    * 2. make sure to make a move when it is black's turn []
+    * 3. update chess game afterwards as well []
+     */
 
     playerTurn = "white";
     playerTurnElement.innerHTML = playerTurn;
@@ -402,8 +409,10 @@ function onClick(): void  {
             try{
                 if ( !selectedObject.square ) {
                     moveInfo = chess.move( { from: selectedPiece, to: targetSquare, promotion: 'q' } );
+                    game.move(selectedPiece, targetSquare);
                 } else {
                     moveInfo = chess.move( { from: selectedObject.square, to: targetSquare, promotion: 'q' } );
+                    game.move(selectedObject.square, targetSquare);
                 }
 
                 // check if move is a pawn promotion
