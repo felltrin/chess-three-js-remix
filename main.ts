@@ -3,6 +3,7 @@ import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {GLTF, GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
 import {Chess, Move, Piece, Square} from 'chess.js';
 import {Color} from "three";
+import {Game, move, status, moves, aiMove, getFen } from 'js-chess-engine';
 
 
 window.addEventListener('DOMContentLoaded', main);
@@ -28,7 +29,8 @@ let renderer: THREE.WebGLRenderer,
     otherCountdownInterval: number,
     playerCheckInterval: number,
     countdownEl: HTMLElement | null,
-    otherCountdownEl: HTMLElement | null;
+    otherCountdownEl: HTMLElement | null,
+    game: Game;
 
 
 const FILES: Record<number, string> = {
@@ -77,6 +79,7 @@ function main(): void {
 
 function init(): void {
     chess = new Chess();
+    game = new Game();
 
     playerTurn = "white";
     playerTurnElement.innerHTML = playerTurn;
@@ -246,6 +249,18 @@ function hoverPieces(): void {
     }
 }
 
+function moveBlackPiece(): number {
+    const move: Object = game.aiMove(0);
+    const from: string = Object.keys(move)[0].toLowerCase();
+    const to: Square = Object.values(move)[0].toLowerCase();
+    const blackMove: Move = chess.move({from: from, to: to});
+    const meshForThePiece: THREE.Mesh = scene.children.find(( child: THREE.Mesh ): boolean => child.userData.currentSquare === from);
+
+    moveMeshDone(to, meshForThePiece);
+
+    return 0;
+}
+
 let animationId: number;
 function animate(): void {
     controls.update();
@@ -399,8 +414,10 @@ function onClick(): void  {
             try{
                 if ( !selectedObject.square ) {
                     moveInfo = chess.move( { from: selectedPiece, to: targetSquare, promotion: 'q' } );
+                    game.move(selectedPiece, targetSquare);
                 } else {
                     moveInfo = chess.move( { from: selectedObject.square, to: targetSquare, promotion: 'q' } );
+                    game.move(selectedObject.square, targetSquare);
                 }
 
                 // check if move is a pawn promotion
@@ -414,6 +431,10 @@ function onClick(): void  {
                 handleSpecialCases( moveInfo, targetSquare );
 
                 moveMeshDone(targetSquare, selectedObject);
+
+                if( chess.turn() === 'b' ) {
+                    moveBlackPiece();
+                }
             } catch (error) {
                 console.log(error);
                 selectedPiece = null;
