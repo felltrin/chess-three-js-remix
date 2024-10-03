@@ -81,13 +81,6 @@ function init(): void {
     chess = new Chess();
     game = new Game();
 
-    // whenever a move is made to chess, apply to game
-    /*
-    * 1. move to chess, update game [x]
-    * 2. make sure to make a move when it is black's turn []
-    * 3. update chess game afterwards as well []
-     */
-
     playerTurn = "white";
     playerTurnElement.innerHTML = playerTurn;
     countdownEl.innerHTML = "10:00";
