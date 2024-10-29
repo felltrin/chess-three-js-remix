@@ -220,8 +220,8 @@ Project Link: [https://github.com/felltrin/chess-three-js-remix](https://github.
 [Next-url]: https://threejs.org/
 [React.js]: https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white
 [React-url]: https://www.typescriptlang.org/
-[Vue.js]: https://img.shields.io/badge/SASS-hotpink.svg?style=for-the-badge&logo=SASS&logoColor=white
-[Vue-url]: https://sass-lang.com/
+[Vue.js]: https://img.shields.io/badge/tailwindcss-%2338B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white
+[Vue-url]: https://tailwindcss.com/
 [Angular.io]: https://img.shields.io/badge/html5-%23E34F26.svg?style=for-the-badge&logo=html5&logoColor=white
 [Angular-url]: https://developer.mozilla.org/en-US/docs/Glossary/HTML5
 [Svelte.dev]: https://img.shields.io/badge/vite-aqua?style=for-the-badge&logo=vite&logoColor=orange
